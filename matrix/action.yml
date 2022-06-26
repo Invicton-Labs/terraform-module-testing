@@ -98,7 +98,7 @@ runs:
                 minor=$(echo $version | cut -d. -f2)
                 # Exclude Amazon Linux 1/2 with any version less than 13
                 if ! ( [ $major -eq 0 ] && [ $minor -lt 13 ] && ( [ "$image" = "amazonlinux:1" ] || [ "$image" = "amazonlinux:2" ] )) then
-                    matrix+=("{\"container\": \"{\\\"image\\\": \\\"$image\\\"}, \"terraform_version\": \"$version\", \"runs-on\": \"ubuntu-latest\"}")
+                    # matrix+=("{\"container\": \"{\\\"image\\\": \\\"$image\\\"}, \"terraform_version\": \"$version\", \"runs-on\": \"ubuntu-latest\"}")
                 fi
             done
         done
