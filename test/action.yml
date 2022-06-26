@@ -11,7 +11,7 @@ runs:
 
   steps:
     - name: Install Terraform (Alpine)
-      if: startsWith(matrix.image, 'alpine:')
+      if: startsWith(matrix.container.image, 'alpine:')
       shell: sh
       run: |
         apk add --no-cache git
@@ -20,7 +20,7 @@ runs:
         mv terraform /usr/bin/terraform
         
     - name: Install Terraform (Redhat)
-      if: startsWith(matrix.image, 'redhat/')
+      if: startsWith(matrix.container.image, 'redhat/')
       shell: sh
       run: |
         yum -y update
@@ -29,7 +29,7 @@ runs:
         yum -y install terraform-${{ matrix.terraform_version }}
 
     - name: Install Terraform (CentOS)
-      if: startsWith(matrix.image, 'centos:')
+      if: startsWith(matrix.container.image, 'centos:')
       shell: sh
       run: |
         sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
@@ -40,7 +40,7 @@ runs:
         yum -y install terraform-${{ matrix.terraform_version }}
 
     - name: Install Terraform (Amazon Linux)
-      if: startsWith(matrix.image, 'amazonlinux:')
+      if: startsWith(matrix.container.image, 'amazonlinux:')
       shell: sh
       run: |
         yum install -y yum-utils git
@@ -48,7 +48,7 @@ runs:
         yum -y install terraform-${{ matrix.terraform_version }}
 
     - name: Install Terraform (Fedora)
-      if: startsWith(matrix.image, 'fedora:')
+      if: startsWith(matrix.container.image, 'fedora:')
       shell: sh
       run: |
         dnf install -y dnf-plugins-core git
@@ -56,7 +56,7 @@ runs:
         dnf -y install terraform-${{ matrix.terraform_version }}
 
     - name: Install Terraform (Ubuntu)
-      if: startsWith(matrix.image, 'ubuntu:')
+      if: startsWith(matrix.container.image, 'ubuntu:')
       shell: sh
       run: |
         apt-get update
@@ -69,7 +69,7 @@ runs:
     # Installation for when we're not running in a container
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v2
-      if: matrix.image == ''
+      if: matrix.container.image == ''
       with:
         terraform_version: ${{ inputs.terraform_version }}
 
