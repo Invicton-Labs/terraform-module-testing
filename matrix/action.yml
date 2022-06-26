@@ -8,7 +8,9 @@ inputs:
 
 outputs:
 
-  linux_containers_matrix: '{"terraform_version": ${{ steps.terraform.outputs.versions }}, "images": ${{ steps.images.outputs.images }} }'
+  linux_containers_matrix: 
+    description: "The JSON-encoded matrix to use for the Linux containers tests.
+    value: {"terraform_version": ${{ steps.terraform.outputs.versions }}, "images": ${{ steps.images.outputs.images }} }
 
   terraform_versions:
     description: "The versions of Terraform to test with."
