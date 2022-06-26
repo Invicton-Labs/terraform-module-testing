@@ -10,7 +10,7 @@ outputs:
 
   linux_containers_matrix: 
     description: "The JSON-encoded matrix to use for the Linux containers tests."
-    value: '{"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "images": ${{ steps.images.outputs.images }}, "runs-on": ["ubuntu-latest"], "exclude": ${{ steps.exclude.outputs.exclude }} }}'
+    value: '{"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "image": ${{ steps.images.outputs.images }}, "runs-on": ["ubuntu-latest"], "exclude": ${{ steps.exclude.outputs.exclude }} }}'
 
   linux_shells_matrix: 
     description: "The JSON-encoded matrix to use for the Linux shells tests."
@@ -46,6 +46,8 @@ runs:
       shell: bash
       run: echo ::set-output name=names::'${{ toJSON(join(fromJSON(steps.windows.outputs.names), fromJSON(steps.macos.outputs.names))) }}'
 
+    # Get the full list of Terraform versions.
+    # For each major/minor version, only get the first release (no subsequent patch versions)
     - name: Get Terraform Versions
       id: terraform
       shell: bash
