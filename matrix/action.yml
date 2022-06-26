@@ -44,7 +44,7 @@ runs:
     - name: Get Non-Linux Operating Systems
       id: non-linux
       shell: bash
-      run: echo ::set-output name=names::'${{ toJSON(join(fromJSON(steps.windows.outputs.names), fromJSON(steps.macos.outputs.names))) }}'
+      run: echo ::set-output name=names::$(jq --argjson windows '${{ steps.windows.outputs.names }}' --argjson macos '${{ steps.macos.outputs.names }}' -n '$windows + $macos' )
 
     # Get the full list of Terraform versions.
     # For each major/minor version, only get the first release (no subsequent patch versions)
