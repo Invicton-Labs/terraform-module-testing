@@ -84,8 +84,8 @@ runs:
       run: |
         set -eu -o pipefail
 
-        windows_versions='${{ steps.windows.outputs.versions }}'
-        macos_versions='${{ steps.mac.outputs.versions }}'
+        windows_versions='${{ steps.windows.outputs.names }}'
+        macos_versions='${{ steps.mac.outputs.names }}'
         images='${{ steps.images.outputs.images }}'
         tf_versions='${{ steps.terraform.outputs.versions }}'
 
