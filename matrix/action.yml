@@ -120,4 +120,5 @@ runs:
             done
         done
 
-        echo ::set-output name=matrix::$(echo "${matrix[@]}" | jq -s '.')
+        _matrix=$(echo "${matrix[@]}" | jq -rs '.' )
+        echo ::set-output name=matrix::$(jq -n --argjson matrix "$_matrix" '{"fail-fast": false, "matrix": $matrix}')
