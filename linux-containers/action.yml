@@ -20,7 +20,7 @@ runs:
       run: echo '${{ toJSON(job) }}'
 
     - name: Install Terraform (Alpine)
-      if: startsWith(job.container.image, 'alpine:')
+      if: startsWith(matrix.image, 'alpine:')
       shell: sh
       run: |
         apk add --no-cache git
@@ -29,7 +29,7 @@ runs:
         mv terraform /usr/bin/terraform
         
     - name: Install Terraform (Redhat)
-      if: startsWith(job.container.image, 'redhat/')
+      if: startsWith(matrix.image, 'redhat/')
       shell: sh
       run: |
         yum -y update
@@ -38,7 +38,7 @@ runs:
         yum -y install terraform-${{ inputs.terraform_version }}
 
     - name: Install Terraform (CentOS)
-      if: startsWith(job.container.image, 'centos:')
+      if: startsWith(matrix.image, 'centos:')
       shell: sh
       run: |
         sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
@@ -49,7 +49,7 @@ runs:
         yum -y install terraform-${{ inputs.terraform_version }}
 
     - name: Install Terraform (Amazon Linux)
-      if: startsWith(job.container.image, 'amazonlinux:')
+      if: startsWith(matrix.image, 'amazonlinux:')
       shell: sh
       run: |
         yum install -y yum-utils git
@@ -57,7 +57,7 @@ runs:
         yum -y install terraform-${{ inputs.terraform_version }}
 
     - name: Install Terraform (Fedora)
-      if: startsWith(job.container.image, 'fedora:')
+      if: startsWith(matrix.image, 'fedora:')
       shell: sh
       run: |
         dnf install -y dnf-plugins-core git
@@ -65,7 +65,7 @@ runs:
         dnf -y install terraform-${{ inputs.terraform_version }}
 
     - name: Install Terraform (Ubuntu)
-      if: startsWith(job.container.image, 'ubuntu:')
+      if: startsWith(matrix.image, 'ubuntu:')
       shell: sh
       run: |
         apt-get update
