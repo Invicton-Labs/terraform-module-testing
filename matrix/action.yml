@@ -10,11 +10,11 @@ outputs:
 
   linux_containers_matrix: 
     description: "The JSON-encoded matrix to use for the Linux containers tests."
-    value: '{"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "images": ${{ steps.images.outputs.images }}, "runs-on": "ubuntu-latest", "exclude": ${{ steps.exclude.outputs.exclude }} }}'
+    value: '{"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "images": ${{ steps.images.outputs.images }}, "runs-on": ["ubuntu-latest"], "exclude": ${{ steps.exclude.outputs.exclude }} }}'
 
   linux_shells_matrix: 
     description: "The JSON-encoded matrix to use for the Linux shells tests."
-    value: '{"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "runs-on": "ubuntu-latest" }}'
+    value: '{"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "runs-on": ["ubuntu-latest"] }}'
 
   non_linux_matrix: 
     description: "The JSON-encoded matrix to use for non-Linux tests."
