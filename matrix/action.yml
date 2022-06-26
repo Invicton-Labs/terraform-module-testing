@@ -10,15 +10,15 @@ outputs:
 
   linux_containers_matrix: 
     description: "The JSON-encoded matrix to use for the Linux containers tests."
-    value: '{"strategy": {"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "images": ${{ steps.images.outputs.images }}, "runs-on": "ubuntu-latest", "exclude": ${{ steps.exclude.outputs.exclude }} }}}'
+    value: '{"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "images": ${{ steps.images.outputs.images }}, "runs-on": "ubuntu-latest", "exclude": ${{ steps.exclude.outputs.exclude }} }}'
 
   linux_shells_matrix: 
     description: "The JSON-encoded matrix to use for the Linux shells tests."
-    value: '{"strategy": {"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "runs-on": "ubuntu-latest" }}}'
+    value: '{"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "runs-on": "ubuntu-latest" }}'
 
   non_linux_matrix: 
     description: "The JSON-encoded matrix to use for non-Linux tests."
-    value: '{"strategy": {"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "runs-on": ${{ steps.non-linux.outputs.names }} }}}'
+    value: '{"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "runs-on": ${{ steps.non-linux.outputs.names }} }}'
 
 
 runs:
@@ -88,7 +88,7 @@ runs:
         set -eu -o pipefail
 
         images=("amazonlinux:1", "amazonlinux:2")
-        tf_versions='${{ steps.terraform.versions }}'
+        tf_versions='${{ steps.terraform.outputs.versions }}'
         excluded=()
 
         for version in $(echo "${tf_versions}" | jq -r '.[]'); do
