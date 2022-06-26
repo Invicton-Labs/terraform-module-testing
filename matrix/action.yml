@@ -8,11 +8,10 @@ inputs:
 
 outputs:
 
-  linux_containers_matrix: ${{ toJSON(
-    terraform_version: fromJSON(steps.terraform.outputs.versions)
+  linux_containers_matrix: '{"terraform_version": "${{ toJSON(steps.terraform.outputs.versions) }}", "images": "${{ toJSON(steps.images.outputs.images) }}" }'
     images: fromJSON(steps.images.outputs.images)
   ) }}
-  
+
   terraform_versions:
     description: "The versions of Terraform to test with."
     value: ${{ steps.terraform.outputs.versions }}
