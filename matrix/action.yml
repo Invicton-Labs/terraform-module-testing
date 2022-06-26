@@ -7,6 +7,12 @@ inputs:
     required: true
 
 outputs:
+
+  linux_containers_matrix: ${{ toJSON(
+    terraform_version: fromJSON(steps.terraform.outputs.versions)
+    images: fromJSON(steps.images.outputs.images)
+  ) }}
+  
   terraform_versions:
     description: "The versions of Terraform to test with."
     value: ${{ steps.terraform.outputs.versions }}
@@ -19,17 +25,33 @@ outputs:
     description: "The versions of MacOS to test with."
     value: '["windows-2022", "windows-2019", "windows-2016"]'
 
-  mac_versions:
+  mac_matrix:
     description: "The versions of MacOS to test with."
     value: '["mac-12", "mac-11", "mac-10.15"]'
 
 runs:
   using: 'composite'
+  
+  defaults:
+    run:
+      shell: bash
+
   steps:
+
+    - name: Get Images
+      id: images
+      run: echo ::set-output name=images::'["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "ubuntu:latest", "amazonlinux:1", "amazonlinux:2"]'
+
+    - name: Get Windows Versions
+      id: windows
+      run: echo ::set-output name=versions::'["windows-2022", "windows-2019", "windows-2016"]'
+
+    - name: Get MacOS Versions
+      id: macos
+      run: echo ::set-output name=versions::'["mac-12", "mac-11", "mac-10.15"]'
 
     - name: Get Terraform Versions
       id: terraform
-      shell: bash
       run: |
         set -e
 
@@ -59,4 +81,3 @@ runs:
         done <<<$(echo "$version_lines" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
 
         echo ::set-output name=versions::$(jq -n --arg inarr "${selected_versions}" '$inarr | split(",")')
-        
