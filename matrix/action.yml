@@ -23,27 +23,27 @@ outputs:
 
 runs:
   using: 'composite'
-  
-  defaults:
-    run:
-      shell: bash
 
   steps:
 
     - name: Get Images
       id: images
+      shell: bash
       run: echo ::set-output name=images::'["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "ubuntu:latest", "amazonlinux:1", "amazonlinux:2"]'
 
     - name: Get Windows Versions
       id: windows
+      shell: bash
       run: echo ::set-output name=versions::'["windows-2022", "windows-2019", "windows-2016"]'
 
     - name: Get MacOS Versions
       id: macos
+      shell: bash
       run: echo ::set-output name=versions::'["mac-12", "mac-11", "mac-10.15"]'
 
     - name: Get Terraform Versions
       id: terraform
+      shell: bash
       run: |
         set -e
 
@@ -76,4 +76,5 @@ runs:
 
     # - name: Generate Linux Containers Matrix
     #   id: linux-containers-matrix
+    #  shell: bash
     #   run: echo ::set-output name=matrix::
