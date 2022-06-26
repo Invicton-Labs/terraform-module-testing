@@ -10,7 +10,7 @@ outputs:
 
   linux_containers_matrix: 
     description: "The JSON-encoded matrix to use for the Linux containers tests.
-    value: {"terraform_version": ${{ steps.terraform.outputs.versions }}, "images": ${{ steps.images.outputs.images }} }
+    value: '{"terraform_version": ${{ steps.terraform.outputs.versions }}, "images": ${{ steps.images.outputs.images }} }'
 
   terraform_versions:
     description: "The versions of Terraform to test with."
@@ -20,13 +20,6 @@ outputs:
     description: "The containers to test with."
     value: '["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "ubuntu:latest", "amazonlinux:1", "amazonlinux:2"]'
 
-  windows_versions:
-    description: "The versions of MacOS to test with."
-    value: '["windows-2022", "windows-2019", "windows-2016"]'
-
-  mac_matrix:
-    description: "The versions of MacOS to test with."
-    value: '["mac-12", "mac-11", "mac-10.15"]'
 
 runs:
   using: 'composite'
