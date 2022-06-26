@@ -6,6 +6,11 @@ inputs:
     description: "The minimum version of Terraform to test with."
     required: true
 
+  excluded_tf_versions:
+    description: "A comma-separated list of Terraform versions to exclude for testing."
+    required: false
+    default: ""
+
 outputs:
   strategy: 
     description: "The JSON-encoded strategy to use for the testing jobs."
@@ -47,33 +52,52 @@ runs:
       shell: bash
       run: |
         set -eu -o pipefail
-
-        lowest_version="${{ inputs.minimum_tf_version }}"
-        lowest_major=$(echo $lowest_version | cut -d. -f1)
-        lowest_minor=$(echo $lowest_version | cut -d. -f2)
-        lowest_patch=$(echo $lowest_version | cut -d. -f3)
+        # Strip whitespace from the minimum version input
+        minimum_version=$(echo "${{ inputs.minimum_tf_version }}" | sed 's/[[:blank:]]//g')
+        # Remove any whitespace from our excluded version string and split it on commas
+        IFS=',' read -r -a excluded_versions <<< $(echo "${{ inputs.excluded_tf_versions }}" | sed 's/[[:blank:]]//g')
+        minimum_major=$(echo $minimum_version | cut -d. -f1)
+        minimum_minor=$(echo $minimum_version | cut -d. -f2)
+        minimum_patch=$(echo $minimum_version | cut -d. -f3)
 
         versions_html=$(curl -s https://releases.hashicorp.com/terraform/ 2>&1)
         version_lines=$(echo "$versions_html" | grep -oE "terraform/[0-9]+\.[0-9]+\.[0-9]+/")
 
-        selected_versions=""
+        contains_element () {
+          local e match="$1"
+          shift
+          for e; do [[ "$e" == "$match" ]] && return 0; done
+          return 1
+        }
+
+        selected_versions=()
+        declare -A found_major_minor
 
         while read -r version ; do
             major=$(echo $version | cut -d. -f1)
             minor=$(echo $version | cut -d. -f2)
             patch=$(echo $version | cut -d. -f3)
-            if [ $major -gt $lowest_major ] || ( [ $major -eq $lowest_major ] && [ $minor -gt $lowest_minor ] ) || ( [ $major -eq $lowest_major ] && [ $minor -eq $lowest_minor ] && [ $patch -ge $lowest_patch ] ); then
-                if [ $patch -eq 0 ] || [ $version = $lowest_version ]; then
-                    if [ -z $selected_versions ]; then
-                        selected_versions="$version"
-                    else
-                        selected_versions="$selected_versions,$version"
+
+            # If the major/minor combination doesn't exist in the associative array, consider this version
+            if ! [ ${found_major_minor["$major.$minor"]+_} ]; then
+                # Ensure it's at least as recent as our lowest version
+                if [ $major -gt $minimum_major ] || ( [ $major -eq $minimum_major ] && [ $minor -gt $minimum_minor ] ) || ( [ $major -eq $minimum_major ] && [ $minor -eq $minimum_minor ] && [ $patch -ge $minimum_patch ] ); then
+                    # Ensure the version we're considering isn't explicitly excluded
+                    if ! contains_element $version "${excluded_versions[@]}"; then
+                        found_major_minor["$major.$minor"]=true
+                        selected_versions+=("$version")
                     fi
                 fi
             fi
-        done <<<$(echo "$version_lines" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
+        done <<<$(echo "$version_lines" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+" | sort --version-sort --field-separator=.)
 
-        echo ::set-output name=versions::$(jq -n --arg inarr "${selected_versions}" '$inarr | split(",")')
+        # Sort the version numbers, descending
+        IFS=$'\n' selected_versions=($(sort -r --version-sort --field-separator=. <<<"${selected_versions[*]}"))
+        unset IFS
+
+        join_by () { local IFS="$1"; shift; echo "$*"; }
+
+        echo ::set-output name=versions::$(jq -n --arg inarr $(join_by , ${selected_versions[@]}) '$inarr | split(",")')
 
     # Generate excluded container configurations.
     # amazonlinux doesn't support anything below TF v0.13.x
