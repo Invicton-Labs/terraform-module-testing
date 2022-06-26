@@ -1,0 +1,62 @@
+name: 'Terraform Module Testing Matrix'
+description: 'Generates a Terraform module testing matrix for use with GitHub Actions.'
+
+inputs:
+  minimum_tf_version:
+    description: "The minimum version of Terraform to test with."
+    required: true
+
+outputs:
+  terraform_versions:
+    description: "The versions of Terraform to test with."
+    value: ${{ steps.terraform.outputs.versions }}
+
+  images:
+    description: "The containers to test with."
+    value: '["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "ubuntu:latest", "amazonlinux:1", "amazonlinux:2"]'
+
+  windows_versions:
+    description: "The versions of MacOS to test with."
+    value: '["windows-2022", "windows-2019", "windows-2016"]'
+
+  mac_versions:
+    description: "The versions of MacOS to test with."
+    value: '["mac-12", "mac-11", "mac-10.15"]'
+
+runs:
+  using: 'composite'
+  steps:
+
+    - name: Get Terraform Versions
+      id: terraform
+      shell: bash
+      run: |
+        set -e
+
+        lowest_version="${{ inputs.minimum_tf_version }}"
+        lowest_major=$(echo $lowest_version | cut -d. -f1)
+        lowest_minor=$(echo $lowest_version | cut -d. -f2)
+        lowest_patch=$(echo $lowest_version | cut -d. -f3)
+
+        versions_html=$(curl -s https://releases.hashicorp.com/terraform/ 2>&1)
+        version_lines=$(echo "$versions_html" | grep -oE "terraform/[0-9]+\.[0-9]+\.[0-9]+/")
+
+        selected_versions=""
+
+        while read -r version ; do
+            major=$(echo $version | cut -d. -f1)
+            minor=$(echo $version | cut -d. -f2)
+            patch=$(echo $version | cut -d. -f3)
+            if [ $major -gt $lowest_major ] || ( [ $major -eq $lowest_major ] && [ $minor -gt $lowest_minor ] ) || ( [ $major -eq $lowest_major ] && [ $minor -eq $lowest_minor ] && [ $patch -ge $lowest_patch ] ); then
+                if [ $patch -eq 0 ] || [ $version = $lowest_version ]; then
+                    if [ -z $selected_versions ]; then
+                        selected_versions="$version"
+                    else
+                        selected_versions="$selected_versions,$version"
+                    fi
+                fi
+            fi
+        done <<<$(echo "$version_lines" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
+
+        echo ::set-output name=versions::$(jq -n --arg inarr "${selected_versions}" '$inarr | split(",")')
+        

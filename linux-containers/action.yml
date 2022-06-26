@@ -1,0 +1,83 @@
+name: 'Terraform Module Testing - Linux Shells'
+description: 'Tests the Terraform module on various Linux shells.'
+
+inputs:
+  terraform_version:
+    description: "The version of Terraform to test with."
+    required: true
+
+  testing_path:
+    description: "The path to the directory that contains the Terraform testing configuration."
+    required: true
+
+runs:
+  using: 'composite'
+  defaults:
+    run:
+      shell: sh
+
+  steps:
+
+    - name: Install Terraform (Alpine)
+      if: startsWith(job.container.image, 'alpine:')
+      run: |
+        apk add --no-cache git
+        wget https://releases.hashicorp.com/terraform/${{ inputs.terraform_version }}/terraform_${{ inputs.terraform_version }}_linux_amd64.zip
+        unzip terraform_${{ inputs.terraform_version }}_linux_amd64.zip
+        mv terraform /usr/bin/terraform
+        
+    - name: Install Terraform (Redhat)
+      if: startsWith(job.container.image, 'redhat/')
+      run: |
+        yum -y update
+        yum install -y yum-utils git
+        yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+        yum -y install terraform-${{ inputs.terraform_version }}
+
+    - name: Install Terraform (CentOS)
+      if: startsWith(job.container.image, 'centos:')
+      run: |
+        sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+        sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+        yum -y update
+        yum install -y yum-utils git
+        yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+        yum -y install terraform-${{ inputs.terraform_version }}
+
+    - name: Install Terraform (Amazon Linux)
+      if: startsWith(job.container.image, 'amazonlinux:')
+      run: |
+        yum install -y yum-utils git
+        yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+        yum -y install terraform-${{ inputs.terraform_version }}
+
+    - name: Install Terraform (Fedora)
+      if: startsWith(job.container.image, 'fedora:')
+      run: |
+        dnf install -y dnf-plugins-core git
+        dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
+        dnf -y install terraform-${{ inputs.terraform_version }}
+
+    - name: Install Terraform (Ubuntu)
+      if: startsWith(job.container.image, 'ubuntu:')
+      run: |
+        apt-get update
+        apt-get install -y curl gnupg lsb-release software-properties-common git
+        curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
+        apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+        apt-get update
+        apt-get install -y terraform=${{ inputs.terraform_version }}
+
+    # Checkout the repository
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Initialize the workspace
+    - name: Terraform Init
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform init
+
+    # Apply the Terraform config
+    - name: Terraform Apply
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform apply -auto-approve

@@ -1,0 +1,48 @@
+name: 'Terraform Module Testing - Linux Shells'
+description: 'Tests the Terraform module on various Linux shells.'
+
+inputs:
+  terraform_version:
+    description: "The version of Terraform to test with."
+    required: true
+
+  testing_path:
+    description: "The path to the directory that contains the Terraform testing configuration."
+    required: true
+
+runs:
+  using: 'composite'
+  defaults:
+    run:
+      working-directory: ${{ inputs.testing_path }}
+      shell: sh
+
+  steps:
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ inputs.terraform_version }}
+
+    # Checkout the repository
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Install shells
+    - name: Install Shells
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y bash ksh ash dash
+
+    # Initialize the workspace
+    - name: Terraform Init
+      run: terraform init
+
+    # Apply the Terraform config
+    - name: Terraform Apply (bash)
+      run: terraform apply -auto-approve -var "unix_interpreter=/bin/bash"
+    - name: Terraform Apply (ksh)
+      run: terraform apply -auto-approve -var "unix_interpreter=/bin/ksh"
+    - name: Terraform Apply (ash)
+      run: terraform apply -auto-approve -var "unix_interpreter=/bin/ash"
+    - name: Terraform Apply (dash)
+      run: terraform apply -auto-approve -var "unix_interpreter=/bin/dash"
