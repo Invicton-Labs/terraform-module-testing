@@ -105,18 +105,18 @@ runs:
 
         # Add the Linux shell configurations
         for version in $(echo "${tf_versions}" | jq -r '.[]'); do
-            matrix+=("{\"terraform_version\": \"$version\", \"runs-on\": \"ubuntu-latest\", \"container\": \"\", \"shells\": \"true\"}")
+            matrix+=("{\"terraform_version\": \"$version\", \"runs-on\": \"ubuntu-latest\", \"shells\": \"true\", \"container\": {}}")
         done
 
         # Add the non-Linux configurations
         for os in $(echo "${windows_versions}" | jq -r '.[]'); do
             for version in $(echo "${tf_versions}" | jq -r '.[]'); do
-                matrix+=("{\"runs-on\": \"$os\", \"terraform_version\": \"$version\", \"container\": \"\"}")
+                matrix+=("{\"runs-on\": \"$os\", \"terraform_version\": \"$version\", \"container\": {}}")
             done
         done
         for os in $(echo "${macos_versions}" | jq -r '.[]'); do
             for version in $(echo "${tf_versions}" | jq -r '.[]'); do
-                matrix+=("{\"runs-on\": \"$os\", \"terraform_version\": \"$version\", \"container\": \"\"}")
+                matrix+=("{\"runs-on\": \"$os\", \"terraform_version\": \"$version\", \"container\": {}}")
             done
         done
 
