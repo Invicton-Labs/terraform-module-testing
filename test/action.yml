@@ -1,11 +1,7 @@
-name: 'Terraform Module Testing - Linux Shells'
-description: 'Tests the Terraform module on various Linux shells.'
+name: 'Terraform Module Testing'
+description: 'Tests the Terraform module.'
 
 inputs:
-  terraform_version:
-    description: "The version of Terraform to test with."
-    required: true
-
   testing_path:
     description: "The path to the directory that contains the Terraform testing configuration."
     required: true
@@ -19,8 +15,8 @@ runs:
       shell: sh
       run: |
         apk add --no-cache git
-        wget https://releases.hashicorp.com/terraform/${{ inputs.terraform_version }}/terraform_${{ inputs.terraform_version }}_linux_amd64.zip
-        unzip terraform_${{ inputs.terraform_version }}_linux_amd64.zip
+        wget https://releases.hashicorp.com/terraform/${{ matrix.terraform_version }}/terraform_${{ matrix.terraform_version }}_linux_amd64.zip
+        unzip terraform_${{ matrix.terraform_version }}_linux_amd64.zip
         mv terraform /usr/bin/terraform
         
     - name: Install Terraform (Redhat)
@@ -30,7 +26,7 @@ runs:
         yum -y update
         yum install -y yum-utils git
         yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-        yum -y install terraform-${{ inputs.terraform_version }}
+        yum -y install terraform-${{ matrix.terraform_version }}
 
     - name: Install Terraform (CentOS)
       if: startsWith(matrix.image, 'centos:')
@@ -41,7 +37,7 @@ runs:
         yum -y update
         yum install -y yum-utils git
         yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-        yum -y install terraform-${{ inputs.terraform_version }}
+        yum -y install terraform-${{ matrix.terraform_version }}
 
     - name: Install Terraform (Amazon Linux)
       if: startsWith(matrix.image, 'amazonlinux:')
@@ -49,7 +45,7 @@ runs:
       run: |
         yum install -y yum-utils git
         yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
-        yum -y install terraform-${{ inputs.terraform_version }}
+        yum -y install terraform-${{ matrix.terraform_version }}
 
     - name: Install Terraform (Fedora)
       if: startsWith(matrix.image, 'fedora:')
@@ -57,7 +53,7 @@ runs:
       run: |
         dnf install -y dnf-plugins-core git
         dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
-        dnf -y install terraform-${{ inputs.terraform_version }}
+        dnf -y install terraform-${{ matrix.terraform_version }}
 
     - name: Install Terraform (Ubuntu)
       if: startsWith(matrix.image, 'ubuntu:')
@@ -68,7 +64,14 @@ runs:
         curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
         apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
         apt-get update
-        apt-get install -y terraform=${{ inputs.terraform_version }}
+        apt-get install -y terraform=${{ matrix.terraform_version }}
+
+    # Installation for when we're not running in a container
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2
+      if: matrix.image == ''
+      with:
+        terraform_version: ${{ inputs.terraform_version }}
 
     # Checkout the repository
     - name: Checkout
@@ -80,8 +83,34 @@ runs:
       working-directory: ${{ inputs.testing_path }}
       run: terraform init
 
-    # Apply the Terraform config
+    # Do an apply for each shell we want to test, if it's a specific shell
+    - name: Terraform Apply (bash)
+      if: matrix.shell == 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform apply -auto-approve -var "unix_interpreter=/bin/bash"
+
+    - name: Terraform Apply (ksh)
+      if: matrix.shell == 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform apply -auto-approve -var "unix_interpreter=/bin/ksh"
+
+    - name: Terraform Apply (ash)
+      if: matrix.shell == 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform apply -auto-approve -var "unix_interpreter=/bin/ash"
+
+    - name: Terraform Apply (dash)
+      if: matrix.shell == 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform apply -auto-approve -var "unix_interpreter=/bin/dash"
+
+    # Apply the Terraform config without specifying a shell
     - name: Terraform Apply
+      if: matrix.shell != 'true'
       shell: sh
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve
