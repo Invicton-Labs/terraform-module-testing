@@ -7,7 +7,6 @@ inputs:
     required: true
 
 outputs:
-
   strategy: 
     description: "The JSON-encoded strategy to use for the testing jobs."
     value: ${{ steps.matrix.outputs.matrix }}
@@ -27,7 +26,7 @@ runs:
     - name: Get Windows Operating Systems
       id: windows
       shell: bash
-      run: echo ::set-output name=names::'["windows-2022", "windows-2019", "windows-2016"]'
+      run: echo ::set-output name=names::'["windows-2022", "windows-2019"]'
 
     # Get the list of MacOS operating systems to test on
     - name: Get MacOS Operating Systems
