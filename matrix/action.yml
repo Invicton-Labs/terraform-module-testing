@@ -89,7 +89,7 @@ runs:
       run: |
         set -eu -o pipefail
 
-        images=("amazonlinux:1", "amazonlinux:2")
+        images=("amazonlinux:1" "amazonlinux:2")
         tf_versions='${{ steps.terraform.outputs.versions }}'
         excluded=()
 
