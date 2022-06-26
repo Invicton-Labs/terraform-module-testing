@@ -10,15 +10,15 @@ outputs:
 
   linux_containers_matrix: 
     description: "The JSON-encoded matrix to use for the Linux containers tests."
-    value: '{"terraform_version": ${{ steps.terraform.outputs.versions }}, "images": ${{ steps.images.outputs.images }} }'
+    value: '{"strategy": {"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "images": ${{ steps.images.outputs.images }}, "runs-on": "ubuntu-latest", "exclude": ${{ steps.exclude.outputs.exclude }} }}}'
 
-  terraform_versions:
-    description: "The versions of Terraform to test with."
-    value: ${{ steps.terraform.outputs.versions }}
+  linux_shells_matrix: 
+    description: "The JSON-encoded matrix to use for the Linux shells tests."
+    value: '{"strategy": {"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "runs-on": "ubuntu-latest" }}}'
 
-  images:
-    description: "The containers to test with."
-    value: '["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "ubuntu:latest", "amazonlinux:1", "amazonlinux:2"]'
+  non_linux_matrix: 
+    description: "The JSON-encoded matrix to use for non-Linux tests."
+    value: '{"strategy": {"fail-fast": false, "matrix": {"terraform_version": ${{ steps.terraform.outputs.versions }}, "runs-on": ${{ steps.non-linux.outputs.names }} }}}'
 
 
 runs:
@@ -31,15 +31,46 @@ runs:
       shell: bash
       run: echo ::set-output name=images::'["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "ubuntu:latest", "amazonlinux:1", "amazonlinux:2"]'
 
-    - name: Get Windows Versions
+    - name: Get Excluded Container/TF Version Combinations
+      id: exclude
+      shell: bash
+      run: |
+      exclude=<<EOF
+        [
+          {"image": "amazonlinux:1", "terraform_version": "0.13.0"},
+          {"image": "amazonlinux:1", "terraform_version": "0.13.1"},
+          {"image": "amazonlinux:1", "terraform_version": "0.13.2"},
+          {"image": "amazonlinux:1", "terraform_version": "0.13.3"},
+          {"image": "amazonlinux:1", "terraform_version": "0.13.4"},
+          {"image": "amazonlinux:1", "terraform_version": "0.13.5"},
+          {"image": "amazonlinux:1", "terraform_version": "0.13.6"},
+          {"image": "amazonlinux:1", "terraform_version": "0.13.7"},
+          {"image": "amazonlinux:2", "terraform_version": "0.13.0"},
+          {"image": "amazonlinux:2", "terraform_version": "0.13.1"},
+          {"image": "amazonlinux:2", "terraform_version": "0.13.2"},
+          {"image": "amazonlinux:2", "terraform_version": "0.13.3"},
+          {"image": "amazonlinux:2", "terraform_version": "0.13.4"},
+          {"image": "amazonlinux:2", "terraform_version": "0.13.5"},
+          {"image": "amazonlinux:2", "terraform_version": "0.13.6"},
+          {"image": "amazonlinux:2", "terraform_version": "0.13.7"}
+        ]
+      EOF
+      echo ::set-output name=exclude::"$exclude"
+
+    - name: Get Windows Operating Systems
       id: windows
       shell: bash
-      run: echo ::set-output name=versions::'["windows-2022", "windows-2019", "windows-2016"]'
+      run: echo ::set-output name=names::'["windows-2022", "windows-2019", "windows-2016"]'
 
-    - name: Get MacOS Versions
+    - name: Get MacOS Operating Systems
       id: macos
       shell: bash
-      run: echo ::set-output name=versions::'["mac-12", "mac-11", "mac-10.15"]'
+      run: echo ::set-output name=names::'["mac-12", "mac-11", "mac-10.15"]'
+
+    - name: Get Non-Linux Operating Systems
+      id: non-linux
+      shell: bash
+      run: echo ::set-output name=names::'${{ toJSON(join(fromJSON(steps.windows.outputs.names), fromJSON(steps.macos.outputs.names))) }}'
 
     - name: Get Terraform Versions
       id: terraform
@@ -73,8 +104,3 @@ runs:
         done <<<$(echo "$version_lines" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
 
         echo ::set-output name=versions::$(jq -n --arg inarr "${selected_versions}" '$inarr | split(",")')
-
-    # - name: Generate Linux Containers Matrix
-    #   id: linux-containers-matrix
-    #  shell: bash
-    #   run: echo ::set-output name=matrix::
