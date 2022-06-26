@@ -12,10 +12,6 @@ inputs:
 
 runs:
   using: 'composite'
-  defaults:
-    run:
-      working-directory: ${{ inputs.testing_path }}
-      shell: sh
 
   steps:
     - name: Install Terraform
@@ -29,20 +25,34 @@ runs:
 
     # Install shells
     - name: Install Shells
+      shell: sh
       run: |
         sudo apt-get update
         sudo apt-get install -y bash ksh ash dash
 
     # Initialize the workspace
     - name: Terraform Init
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
       run: terraform init
 
     # Apply the Terraform config
     - name: Terraform Apply (bash)
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve -var "unix_interpreter=/bin/bash"
+
     - name: Terraform Apply (ksh)
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve -var "unix_interpreter=/bin/ksh"
+
     - name: Terraform Apply (ash)
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve -var "unix_interpreter=/bin/ash"
+
     - name: Terraform Apply (dash)
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve -var "unix_interpreter=/bin/dash"

@@ -12,14 +12,12 @@ inputs:
 
 runs:
   using: 'composite'
-  defaults:
-    run:
-      shell: sh
 
   steps:
 
     - name: Install Terraform (Alpine)
       if: startsWith(job.container.image, 'alpine:')
+      shell: sh
       run: |
         apk add --no-cache git
         wget https://releases.hashicorp.com/terraform/${{ inputs.terraform_version }}/terraform_${{ inputs.terraform_version }}_linux_amd64.zip
@@ -28,6 +26,7 @@ runs:
         
     - name: Install Terraform (Redhat)
       if: startsWith(job.container.image, 'redhat/')
+      shell: sh
       run: |
         yum -y update
         yum install -y yum-utils git
@@ -36,6 +35,7 @@ runs:
 
     - name: Install Terraform (CentOS)
       if: startsWith(job.container.image, 'centos:')
+      shell: sh
       run: |
         sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
         sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
@@ -46,6 +46,7 @@ runs:
 
     - name: Install Terraform (Amazon Linux)
       if: startsWith(job.container.image, 'amazonlinux:')
+      shell: sh
       run: |
         yum install -y yum-utils git
         yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
@@ -53,6 +54,7 @@ runs:
 
     - name: Install Terraform (Fedora)
       if: startsWith(job.container.image, 'fedora:')
+      shell: sh
       run: |
         dnf install -y dnf-plugins-core git
         dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
@@ -60,6 +62,7 @@ runs:
 
     - name: Install Terraform (Ubuntu)
       if: startsWith(job.container.image, 'ubuntu:')
+      shell: sh
       run: |
         apt-get update
         apt-get install -y curl gnupg lsb-release software-properties-common git
@@ -74,10 +77,12 @@ runs:
 
     # Initialize the workspace
     - name: Terraform Init
+      shell: sh
       working-directory: ${{ inputs.testing_path }}
       run: terraform init
 
     # Apply the Terraform config
     - name: Terraform Apply
+      shell: sh
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve

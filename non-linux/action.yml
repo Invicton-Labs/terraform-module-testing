@@ -14,24 +14,26 @@ runs:
   using: 'composite'
   defaults:
     run:
-      shell: sh
-      working-directory: ${{ inputs.testing_path }}
 
   steps:
 
     - name: Install Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: ${{ inputs.terraform_version }}
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ inputs.terraform_version }}
 
-      # Checkout the repository
-      - name: Checkout
-        uses: actions/checkout@v3
+    # Checkout the repository
+    - name: Checkout
+      uses: actions/checkout@v3
 
-      # Initialize the workspace
-      - name: Terraform Init
-        run: terraform init
+    # Initialize the workspace
+    - name: Terraform Init
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform init
 
-      # Apply the Terraform config
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+    # Apply the Terraform config
+    - name: Terraform Apply
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform apply -auto-approve
