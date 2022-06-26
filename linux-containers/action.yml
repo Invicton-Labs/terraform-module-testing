@@ -15,6 +15,10 @@ runs:
 
   steps:
 
+    - name: Echo job
+      shell: sh
+      run: echo '${{ toJSON(job) }}'
+
     - name: Install Terraform (Alpine)
       if: startsWith(job.container.image, 'alpine:')
       shell: sh
