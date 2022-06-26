@@ -9,7 +9,7 @@ inputs:
 outputs:
 
   linux_containers_matrix: 
-    description: "The JSON-encoded matrix to use for the Linux containers tests.
+    description: "The JSON-encoded matrix to use for the Linux containers tests."
     value: '{"terraform_version": ${{ steps.terraform.outputs.versions }}, "images": ${{ steps.images.outputs.images }} }'
 
   terraform_versions:
@@ -73,3 +73,7 @@ runs:
         done <<<$(echo "$version_lines" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
 
         echo ::set-output name=versions::$(jq -n --arg inarr "${selected_versions}" '$inarr | split(",")')
+
+    # - name: Generate Linux Containers Matrix
+    #   id: linux-containers-matrix
+    #   run: echo ::set-output name=matrix::
