@@ -31,32 +31,6 @@ runs:
       shell: bash
       run: echo ::set-output name=images::'["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "ubuntu:latest", "amazonlinux:1", "amazonlinux:2"]'
 
-    - name: Get Excluded Container/TF Version Combinations
-      id: exclude
-      shell: bash
-      run: |
-        exclude=<<EOF
-          [
-            {"image": "amazonlinux:1", "terraform_version": "0.13.0"},
-            {"image": "amazonlinux:1", "terraform_version": "0.13.1"},
-            {"image": "amazonlinux:1", "terraform_version": "0.13.2"},
-            {"image": "amazonlinux:1", "terraform_version": "0.13.3"},
-            {"image": "amazonlinux:1", "terraform_version": "0.13.4"},
-            {"image": "amazonlinux:1", "terraform_version": "0.13.5"},
-            {"image": "amazonlinux:1", "terraform_version": "0.13.6"},
-            {"image": "amazonlinux:1", "terraform_version": "0.13.7"},
-            {"image": "amazonlinux:2", "terraform_version": "0.13.0"},
-            {"image": "amazonlinux:2", "terraform_version": "0.13.1"},
-            {"image": "amazonlinux:2", "terraform_version": "0.13.2"},
-            {"image": "amazonlinux:2", "terraform_version": "0.13.3"},
-            {"image": "amazonlinux:2", "terraform_version": "0.13.4"},
-            {"image": "amazonlinux:2", "terraform_version": "0.13.5"},
-            {"image": "amazonlinux:2", "terraform_version": "0.13.6"},
-            {"image": "amazonlinux:2", "terraform_version": "0.13.7"}
-          ]
-        EOF
-        echo ::set-output name=exclude::"$exclude"
-
     - name: Get Windows Operating Systems
       id: windows
       shell: bash
@@ -76,7 +50,7 @@ runs:
       id: terraform
       shell: bash
       run: |
-        set -e
+        set -eu -o pipefail
 
         lowest_version="${{ inputs.minimum_tf_version }}"
         lowest_major=$(echo $lowest_version | cut -d. -f1)
@@ -104,3 +78,29 @@ runs:
         done <<<$(echo "$version_lines" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
 
         echo ::set-output name=versions::$(jq -n --arg inarr "${selected_versions}" '$inarr | split(",")')
+
+    # Generate excluded container configurations.
+    # amazonlinux doesn't support anything below TF v0.13.x
+    - name: Generate Excluded Container Configurations
+      id: exclude
+      run: |
+        set -eu -o pipefail
+
+        images=("amazonlinux:1", "amazonlinux:2")
+        tf_versions='${{ steps.terraform.versions }}'
+        excluded=()
+
+        for version in $(echo "${tf_versions}" | jq -r '.[]'); do
+            major=$(echo $version | cut -d. -f1)
+            minor=$(echo $version | cut -d. -f2)
+            patch=$(echo $version | cut -d. -f3)
+
+            if [ $major -eq 0 ] && [ $minor -le 13 ]; then
+                for image in "${images[@]}"; do
+                    excluded+=("{\"image\": \"$image\", \"terraform_version\": \"$version\"}")
+                done
+            fi
+        done
+
+        echo ::set-output name=exclude::$(echo "${excluded[@]}" | jq -s '.')
+        
