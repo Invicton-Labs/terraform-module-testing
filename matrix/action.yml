@@ -35,27 +35,27 @@ runs:
       id: exclude
       shell: bash
       run: |
-      exclude=<<EOF
-        [
-          {"image": "amazonlinux:1", "terraform_version": "0.13.0"},
-          {"image": "amazonlinux:1", "terraform_version": "0.13.1"},
-          {"image": "amazonlinux:1", "terraform_version": "0.13.2"},
-          {"image": "amazonlinux:1", "terraform_version": "0.13.3"},
-          {"image": "amazonlinux:1", "terraform_version": "0.13.4"},
-          {"image": "amazonlinux:1", "terraform_version": "0.13.5"},
-          {"image": "amazonlinux:1", "terraform_version": "0.13.6"},
-          {"image": "amazonlinux:1", "terraform_version": "0.13.7"},
-          {"image": "amazonlinux:2", "terraform_version": "0.13.0"},
-          {"image": "amazonlinux:2", "terraform_version": "0.13.1"},
-          {"image": "amazonlinux:2", "terraform_version": "0.13.2"},
-          {"image": "amazonlinux:2", "terraform_version": "0.13.3"},
-          {"image": "amazonlinux:2", "terraform_version": "0.13.4"},
-          {"image": "amazonlinux:2", "terraform_version": "0.13.5"},
-          {"image": "amazonlinux:2", "terraform_version": "0.13.6"},
-          {"image": "amazonlinux:2", "terraform_version": "0.13.7"}
-        ]
-      EOF
-      echo ::set-output name=exclude::"$exclude"
+        exclude=<<EOF
+          [
+            {"image": "amazonlinux:1", "terraform_version": "0.13.0"},
+            {"image": "amazonlinux:1", "terraform_version": "0.13.1"},
+            {"image": "amazonlinux:1", "terraform_version": "0.13.2"},
+            {"image": "amazonlinux:1", "terraform_version": "0.13.3"},
+            {"image": "amazonlinux:1", "terraform_version": "0.13.4"},
+            {"image": "amazonlinux:1", "terraform_version": "0.13.5"},
+            {"image": "amazonlinux:1", "terraform_version": "0.13.6"},
+            {"image": "amazonlinux:1", "terraform_version": "0.13.7"},
+            {"image": "amazonlinux:2", "terraform_version": "0.13.0"},
+            {"image": "amazonlinux:2", "terraform_version": "0.13.1"},
+            {"image": "amazonlinux:2", "terraform_version": "0.13.2"},
+            {"image": "amazonlinux:2", "terraform_version": "0.13.3"},
+            {"image": "amazonlinux:2", "terraform_version": "0.13.4"},
+            {"image": "amazonlinux:2", "terraform_version": "0.13.5"},
+            {"image": "amazonlinux:2", "terraform_version": "0.13.6"},
+            {"image": "amazonlinux:2", "terraform_version": "0.13.7"}
+          ]
+        EOF
+        echo ::set-output name=exclude::"$exclude"
 
     - name: Get Windows Operating Systems
       id: windows
