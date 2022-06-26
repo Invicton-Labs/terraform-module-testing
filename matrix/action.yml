@@ -83,6 +83,7 @@ runs:
     # amazonlinux doesn't support anything below TF v0.13.x
     - name: Generate Excluded Container Configurations
       id: exclude
+      shell: bash
       run: |
         set -eu -o pipefail
 
