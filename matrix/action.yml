@@ -39,12 +39,6 @@ runs:
       shell: bash
       run: echo ::set-output name=names::'["mac-12", "mac-11", "mac-10.15"]'
 
-    # Merge the Windows and MacOS operating system lists together
-    - name: Get Non-Linux Operating Systems
-      id: non-linux
-      shell: bash
-      run: echo ::set-output name=names::$(jq --argjson windows '${{ steps.windows.outputs.names }}' --argjson macos '${{ steps.macos.outputs.names }}' -n '$windows + $macos' )
-
     # Get the full list of Terraform versions.
     # For each major/minor version, only get the first release (no subsequent patch versions)
     - name: Get Terraform Versions
@@ -108,7 +102,7 @@ runs:
         set -eu -o pipefail
 
         windows_versions='${{ steps.windows.outputs.names }}'
-        macos_versions='${{ steps.mac.outputs.names }}'
+        macos_versions='${{ steps.macos.outputs.names }}'
         images='${{ steps.images.outputs.images }}'
         tf_versions='${{ steps.terraform.outputs.versions }}'
 
