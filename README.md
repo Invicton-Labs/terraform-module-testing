@@ -48,8 +48,8 @@ jobs:
           testing_path: tester
 
   # This job just waits for all other jobs to pass. We have it here
-  # so our branch protection rule can reference a single job, instead
-  # of needing to list every matrix value of every job above.
+  # so our GitHub branch protection rule can reference a single job, 
+  # instead of needing to list every matrix value of every job above.
   Passed:
     runs-on: ubuntu-latest
     needs: [Test]
