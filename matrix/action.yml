@@ -37,7 +37,7 @@ runs:
     - name: Get MacOS Operating Systems
       id: macos
       shell: bash
-      run: echo ::set-output name=names::'["mac-12", "mac-11", "mac-10.15"]'
+      run: echo ::set-output name=names::'["macos-12", "macos-11", "macos-10.15"]'
 
     # Get the full list of Terraform versions.
     # For each major/minor version, only get the first release (no subsequent patch versions)
