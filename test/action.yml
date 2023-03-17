@@ -89,24 +89,44 @@ runs:
       shell: sh
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve -var "unix_interpreter=/bin/bash"
+    - name: Terraform Destroy (bash)
+      if: matrix.shell == 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform destroy -auto-approve -var "unix_interpreter=/bin/bash"
 
     - name: Terraform Apply (ksh)
       if: matrix.shell == 'true'
       shell: sh
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve -var "unix_interpreter=/bin/ksh"
+    - name: Terraform Destroy (ksh)
+      if: matrix.shell == 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform destroy -auto-approve -var "unix_interpreter=/bin/ksh"
 
     - name: Terraform Apply (ash)
       if: matrix.shell == 'true'
       shell: sh
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve -var "unix_interpreter=/bin/ash"
+    - name: Terraform Destroy (ash)
+      if: matrix.shell == 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform destroy -auto-approve -var "unix_interpreter=/bin/ash"
 
     - name: Terraform Apply (dash)
       if: matrix.shell == 'true'
       shell: sh
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve -var "unix_interpreter=/bin/dash"
+    - name: Terraform Destroy (dash)
+      if: matrix.shell == 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform destroy -auto-approve -var "unix_interpreter=/bin/dash"
 
     # Apply the Terraform config without specifying a shell
     - name: Terraform Apply
@@ -114,3 +134,8 @@ runs:
       shell: sh
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve
+    - name: Terraform Destroy
+      if: matrix.shell == 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform destroy -auto-approve
