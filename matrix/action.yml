@@ -25,19 +25,19 @@ runs:
     - name: Get Images
       id: images
       shell: bash
-      run: echo ::set-output name=images::'["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "ubuntu:latest", "amazonlinux:1", "amazonlinux:2"]'
+      run: echo images='["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "ubuntu:latest", "amazonlinux:1", "amazonlinux:2"]' >>$GITHUB_OUTPUT
 
     # Get the list of Windows operating systems to test on
     - name: Get Windows Operating Systems
       id: windows
       shell: bash
-      run: echo ::set-output name=names::'["windows-2022", "windows-2019"]'
+      run: echo names='["windows-2022", "windows-2019"]' >>$GITHUB_OUTPUT
 
     # Get the list of MacOS operating systems to test on
     - name: Get MacOS Operating Systems
       id: macos
       shell: bash
-      run: echo ::set-output name=names::'["macos-12", "macos-11", "macos-10.15"]'
+      run: echo names='["macos-12", "macos-11", "macos-10.15"]' >>$GITHUB_OUTPUT
 
     # Get the full list of Terraform versions.
     # For each major/minor version, only get the first release (no subsequent patch versions)
@@ -91,7 +91,7 @@ runs:
 
         join_by () { local IFS="$1"; shift; echo "$*"; }
 
-        echo ::set-output name=versions::$(jq -n --arg inarr $(join_by , ${selected_versions[@]}) '$inarr | split(",")')
+        echo versions=$(jq -n --arg inarr $(join_by , ${selected_versions[@]}) '$inarr | split(",")') >>$GITHUB_OUTPUT
 
     # Generate excluded container configurations.
     # amazonlinux doesn't support anything below TF v0.13.x
@@ -138,4 +138,4 @@ runs:
         done
 
         _matrix=$(echo "${matrix[@]}" | jq -rs '.' )
-        echo ::set-output name=matrix::$(jq -n --argjson matrix "$_matrix" '{"fail-fast": false, "matrix": {"include": $matrix}}')
+        echo matrix=$(jq -n --argjson matrix "$_matrix" '{"fail-fast": false, "matrix": {"include": $matrix}}') >>$GITHUB_OUTPUT
