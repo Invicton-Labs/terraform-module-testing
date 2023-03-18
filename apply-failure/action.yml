@@ -28,7 +28,7 @@ runs:
       if: steps.apply-bash.outcome != 'failure'
       shell: sh
       run: |
-        echo "Apply succeeded when it was expected to fail"
+        echo "Apply had a status other than the expected failure: ${{ steps.apply-bash.outcome }}"
         exit 1
 
     - name: Terraform Apply (dash)
@@ -42,7 +42,7 @@ runs:
       if: steps.apply-dash.outcome != 'failure'
       shell: sh
       run: |
-        echo "Apply succeeded when it was expected to fail"
+        echo "Apply had a status other than the expected failure: ${{ steps.apply-dash.outcome }}"
         exit 1
 
     # Apply the Terraform config without specifying a shell
@@ -57,5 +57,5 @@ runs:
       if: steps.apply.outcome != 'failure'
       shell: sh
       run: |
-        echo "Apply succeeded when it was expected to fail"
+        echo "Apply had a status other than the expected failure: ${{ steps.apply.outcome }}"
         exit 1
