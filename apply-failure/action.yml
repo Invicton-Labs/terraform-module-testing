@@ -25,7 +25,7 @@ runs:
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve -var "unix_interpreter=/bin/bash"
     - name: Check for Failure
-      if: steps.apply-bash.outcome != 'failure'
+      if: matrix.shells == 'true' && steps.apply-bash.outcome != 'failure'
       shell: sh
       run: |
         echo "Apply had a status other than the expected failure: ${{ steps.apply-bash.outcome }}"
@@ -39,7 +39,7 @@ runs:
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve -var "unix_interpreter=/bin/dash"
     - name: Check for Failure
-      if: steps.apply-dash.outcome != 'failure'
+      if: matrix.shells == 'true' && steps.apply-dash.outcome != 'failure'
       shell: sh
       run: |
         echo "Apply had a status other than the expected failure: ${{ steps.apply-dash.outcome }}"
@@ -54,7 +54,7 @@ runs:
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve
     - name: Check for Failure
-      if: steps.apply.outcome != 'failure'
+      if: matrix.shells != 'true' && steps.apply.outcome != 'failure'
       shell: sh
       run: |
         echo "Apply had a status other than the expected failure: ${{ steps.apply.outcome }}"
