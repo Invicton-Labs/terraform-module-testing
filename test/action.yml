@@ -90,7 +90,7 @@ runs:
 
     # Do an apply for each shell we want to test, if it's a specific shell
     - name: Terraform Apply (bash)
-      if: matrix.shell == "true"
+      if: matrix.shell == 'true'
       shell: sh
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve -var "unix_interpreter=/bin/bash"
