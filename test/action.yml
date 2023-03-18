@@ -86,7 +86,7 @@ runs:
     - name: Shell Val
       shell: sh
       run: |
-        echo "${{ matrix.shells }}"
+        echo "${{ toJSON(matrix) }}"
 
     # Do an apply for each shell we want to test, if it's a specific shell
     - name: Terraform Apply (bash)
