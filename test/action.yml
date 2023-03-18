@@ -135,7 +135,7 @@ runs:
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve
     - name: Terraform Destroy
-      if: matrix.shell == 'true'
+      if: matrix.shell != 'true'
       shell: sh
       working-directory: ${{ inputs.testing_path }}
       run: terraform destroy -auto-approve
