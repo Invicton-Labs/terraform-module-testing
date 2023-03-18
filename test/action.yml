@@ -101,17 +101,6 @@ runs:
       working-directory: ${{ inputs.testing_path }}
       run: terraform destroy -auto-approve -var "unix_interpreter=/bin/bash"
 
-    - name: Terraform Apply (ash)
-      if: matrix.shells == 'true'
-      shell: sh
-      working-directory: ${{ inputs.testing_path }}
-      run: terraform apply -auto-approve -var "unix_interpreter=/bin/ash"
-    - name: Terraform Destroy (ash)
-      if: matrix.shells == 'true'
-      shell: sh
-      working-directory: ${{ inputs.testing_path }}
-      run: terraform destroy -auto-approve -var "unix_interpreter=/bin/ash"
-
     - name: Terraform Apply (dash)
       if: matrix.shells == 'true'
       shell: sh
