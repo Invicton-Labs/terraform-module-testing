@@ -10,6 +10,12 @@ runs:
   using: 'composite'
 
   steps:
+
+    - name: Matrix Config
+      shell: sh
+      run: |
+        echo "${{ toJSON(matrix) }}"
+
     - name: Install Terraform (Alpine)
       if: startsWith(matrix.container.image, 'alpine:')
       shell: sh
@@ -83,11 +89,6 @@ runs:
       working-directory: ${{ inputs.testing_path }}
       run: terraform init
 
-    - name: Shell Val
-      shell: sh
-      run: |
-        echo "${{ toJSON(matrix) }}"
-
     # Do an apply for each shell we want to test, if it's a specific shell
     - name: Terraform Apply (bash)
       if: matrix.shells == 'true'
@@ -99,17 +100,6 @@ runs:
       shell: sh
       working-directory: ${{ inputs.testing_path }}
       run: terraform destroy -auto-approve -var "unix_interpreter=/bin/bash"
-
-    - name: Terraform Apply (ksh)
-      if: matrix.shells == 'true'
-      shell: sh
-      working-directory: ${{ inputs.testing_path }}
-      run: terraform apply -auto-approve -var "unix_interpreter=/bin/ksh"
-    - name: Terraform Destroy (ksh)
-      if: matrix.shells == 'true'
-      shell: sh
-      working-directory: ${{ inputs.testing_path }}
-      run: terraform destroy -auto-approve -var "unix_interpreter=/bin/ksh"
 
     - name: Terraform Apply (ash)
       if: matrix.shells == 'true'
