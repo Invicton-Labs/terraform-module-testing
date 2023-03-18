@@ -26,6 +26,7 @@ runs:
       run: terraform apply -auto-approve -var "unix_interpreter=/bin/bash"
     - name: Check for Failure
       if: steps.apply-bash.outcome != 'failure'
+      shell: sh
       run: |
         echo "Apply succeeded when it was expected to fail"
         exit 1
@@ -38,7 +39,8 @@ runs:
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve -var "unix_interpreter=/bin/dash"
     - name: Check for Failure
-      if: steps.applyu-dash.outcome != 'failure'
+      if: steps.apply-dash.outcome != 'failure'
+      shell: sh
       run: |
         echo "Apply succeeded when it was expected to fail"
         exit 1
@@ -52,7 +54,8 @@ runs:
       working-directory: ${{ inputs.testing_path }}
       run: terraform apply -auto-approve
     - name: Check for Failure
-        if: steps.apply.outcome != 'failure'
-        run: |
-          echo "Apply succeeded when it was expected to fail"
-          exit 1
+      if: steps.apply.outcome != 'failure'
+      shell: sh
+      run: |
+        echo "Apply succeeded when it was expected to fail"
+        exit 1
