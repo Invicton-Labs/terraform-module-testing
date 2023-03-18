@@ -1,0 +1,52 @@
+name: 'Terraform Module Testing (Apply & Destroy)'
+description: 'Tests the Terraform module with a standard apply and destroy.'
+
+inputs:
+  testing_path:
+    description: "The path to the directory that contains the Terraform testing configuration."
+    required: true
+
+runs:
+  using: 'composite'
+
+  steps:
+
+    - name: Matrix Config
+      shell: sh
+      run: |
+        echo "${{ toJSON(matrix) }}"
+
+    # Do an apply for each shell we want to test, if it's a specific shell
+    - name: Terraform Apply (bash)
+      if: matrix.shells == 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform apply -auto-approve -var "unix_interpreter=/bin/bash"
+    - name: Terraform Destroy (bash)
+      if: matrix.shells == 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform destroy -auto-approve -var "unix_interpreter=/bin/bash"
+
+    - name: Terraform Apply (dash)
+      if: matrix.shells == 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform apply -auto-approve -var "unix_interpreter=/bin/dash"
+    - name: Terraform Destroy (dash)
+      if: matrix.shells == 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform destroy -auto-approve -var "unix_interpreter=/bin/dash"
+
+    # Apply the Terraform config without specifying a shell
+    - name: Terraform Apply
+      if: matrix.shells != 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform apply -auto-approve
+    - name: Terraform Destroy
+      if: matrix.shells != 'true'
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform destroy -auto-approve

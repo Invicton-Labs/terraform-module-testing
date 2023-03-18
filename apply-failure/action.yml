@@ -1,0 +1,58 @@
+name: 'Terraform Module Testing (Apply Failure)'
+description: 'Tests the Terraform module by asserting that an Apply fails with a non-zero exit code.'
+
+inputs:
+  testing_path:
+    description: "The path to the directory that contains the Terraform testing configuration."
+    required: true
+
+runs:
+  using: 'composite'
+
+  steps:
+
+    - name: Matrix Config
+      shell: sh
+      run: |
+        echo "${{ toJSON(matrix) }}"
+
+    # Do an apply for each shell we want to test, if it's a specific shell
+    - name: Terraform Apply (bash)
+      if: matrix.shells == 'true'
+      id: apply-bash
+      continue-on-error: true
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform apply -auto-approve -var "unix_interpreter=/bin/bash"
+    - name: Check for Failure
+        if: steps.apply-bash.outcome != 'failure'
+        run: |
+          echo "Apply succeeded when it was expected to fail"
+          exit 1
+
+    - name: Terraform Apply (dash)
+      if: matrix.shells == 'true'
+      id: apply-dash
+      continue-on-error: true
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform apply -auto-approve -var "unix_interpreter=/bin/dash"
+    - name: Check for Failure
+        if: steps.applyu-dash.outcome != 'failure'
+        run: |
+          echo "Apply succeeded when it was expected to fail"
+          exit 1
+
+    # Apply the Terraform config without specifying a shell
+    - name: Terraform Apply
+      if: matrix.shells != 'true'
+      id: apply
+      continue-on-error: true
+      shell: sh
+      working-directory: ${{ inputs.testing_path }}
+      run: terraform apply -auto-approve
+    - name: Check for Failure
+        if: steps.apply.outcome != 'failure'
+        run: |
+          echo "Apply succeeded when it was expected to fail"
+          exit 1
