@@ -5,8 +5,8 @@ inputs:
   tf_path:
     description: "The path to the directory that contains the Terraform configuration."
     required: true
-  tf_vars:
-    description: "A list (newline-deliniated string) of key-value pairs (e.g. key1=value1)."
+  tf_args:
+    description: "A list (newline-deliniated string) of command line arguments to provide to Terraform (e.g. -var=\"key1=value1\")."
     required: false
     default: ""
 
@@ -22,46 +22,27 @@ runs:
       run: |
         # Parse each line into its own array element
         readarray -t tf_args <<<$(cat <<EOF
-        ${{ inputs.tf_vars }}
+        ${{ inputs.tf_args }}
         EOF
         )
-        tf_vars=""
+        tf_command_line=""
         # Filter out lines that don't have an equals sign
         for index in "${!tf_args[@]}" ; do 
-          if [[ "${tf_args[index]}" =~ .*"=".* ]]; then
-            if [ "$tf_vars" != "" ]; then
-                tf_vars="$tf_vars "
-            fi
-            tf_vars="${tf_vars}-var=\"$(printf "%b" "$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' <<<${tf_args[index]})")\""
+          if [ "$tf_command_line" != "" ]; then
+              tf_command_line="$tf_command_line "
           fi
+          tf_command_line="${tf_command_line}$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' <<<${tf_args[index]})"
         done
-        echo "tf_vars=$tf_vars" >> $GITHUB_OUTPUT
-
-    - name: Show Input Variables
-      shell: sh
-      run: |
-        echo "${{ steps.input-vars.outputs.tf_vars }}"
-
-    - name: Path
-      shell: sh
-      run: |
-        pwd
-
-    
-    - name: LS
-      shell: sh
-      run: |
-        ls -la
-
+        echo "tf_command_line=$tf_command_line" >> $GITHUB_OUTPUT
 
     # Apply the Terraform config
     - name: Terraform Apply
       shell: sh
       working-directory: ${{ inputs.tf_path }}
-      run: terraform apply -auto-approve ${{ steps.input-vars.outputs.tf_vars }}
+      run: terraform apply -auto-approve ${{ steps.input-vars.outputs.tf_command_line }}
     
     # Destroy the Terraform config
     - name: Terraform Destroy
       shell: sh
       working-directory: ${{ inputs.tf_path }}
-      run: terraform destroy -auto-approve ${{ steps.input-vars.outputs.tf_vars }}
+      run: terraform destroy -auto-approve ${{ steps.input-vars.outputs.tf_command_line }}
