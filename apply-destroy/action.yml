@@ -28,12 +28,12 @@ runs:
         tf_vars=""
         # Filter out lines that don't have an equals sign
         for index in "${!tf_args[@]}" ; do 
-            if [[ "${tf_args[index]}" =~ .*"=".* ]]; then
-                if [ "$tf_vars" != "" ]; then
-                    tf_vars="$tf_vars "
-                fi
-                tf_vars="${tf_vars}-var=\"$(printf "%q" "$(echo "${tf_args[index]}" | xargs)")\""
+          if [[ "${tf_args[index]}" =~ .*"=".* ]]; then
+            if [ "$tf_vars" != "" ]; then
+                tf_vars="$tf_vars "
             fi
+            tf_vars="${tf_vars}-var=\"$(printf "%q" "$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' <<<${tf_args[index]})")\""
+          fi
         done
         echo "tf_vars=$tf_vars" >> $GITHUB_OUTPUT
 
