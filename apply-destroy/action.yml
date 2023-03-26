@@ -8,23 +8,39 @@ inputs:
   tf_vars:
     description: "A JSON-encoded map of key/value pairs."
     required: false
-    default: "{}"
+    default: ""
 
 runs:
   using: 'composite'
 
   steps:
 
-    - name: Display Input Variables
-      shell: sh
-      run: |
-        echo "${{ toJSON(inputs.tf_vars) }}"
-        
     # Process the input variables that are given in the input JSON
     - name: Prepare Input Variables
+      id: input-vars
+      shell: bash
+      run: |
+        # Parse each line into its own array element
+        readarray -t tf_args <<<$(cat <<EOF
+        ${{inputs.tf_vars}}
+        EOF
+        )
+        tf_vars=""
+        # Filter out lines that don't have an equals sign
+        for index in "${!tf_args[@]}" ; do 
+            if [[ "${tf_args[index]}" =~ .*"=".* ]]; then
+                if [ "$tf_vars" != "" ]; then
+                    tf_vars="$tf_vars "
+                fi
+                tf_vars="${tf_vars}-var=\"$(echo "${tf_args[index]}" | xargs)\""
+            fi
+        done
+        echo "tf_vars=$tf_vars" >> $GITHUB_OUTPUT
+
+    - name: Show Input Variables
       shell: sh
       run: |
-        echo "tf_vars=$(echo "${{ inputs.tf_vars }}" | jq -r 'to_entries | map( "-var=\"\( .key + "=" + .value )\"" ) | join( " " )')" >> $GITHUB_OUTPUT
+        echo "${{ steps.input-vars.outputs.tf_vars }}"
 
     # Do an apply for each shell we want to test, if it's a specific shell
     - name: Terraform Apply (bash)
