@@ -6,7 +6,7 @@ inputs:
     description: "The path to the directory that contains the Terraform configuration."
     required: true
   tf_args:
-    description: "A list (newline-deliniated string) of command line arguments to provide to Terraform (e.g. -var=\"key1=value1\")."
+    description: "Arguments to provide to Terraform (e.g. -var=\"key1=value1\" -var=\"key2=value2\")."
     required: false
     default: ""
 
@@ -15,34 +15,16 @@ runs:
 
   steps:
 
-    # Process the input variables that are given in the input JSON
-    - name: Prepare Input Variables
-      id: input-vars
-      shell: bash
-      run: |
-        # Parse each line into its own array element
-        readarray -t tf_args <<<$(cat <<EOF
-        ${{ inputs.tf_args }}
-        EOF
-        )
-        tf_command_line=""
-        # Filter out lines that don't have an equals sign
-        for index in "${!tf_args[@]}" ; do 
-          if [ "$tf_command_line" != "" ]; then
-              tf_command_line="$tf_command_line "
-          fi
-          tf_command_line="${tf_command_line}$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' <<<${tf_args[index]})"
-        done
-        echo "tf_command_line=$tf_command_line" >> $GITHUB_OUTPUT
-
-    # Apply the Terraform config without specifying a shell
+    # Apply the Terraform config
     - name: Terraform Apply
       if: matrix.shells != 'true'
       id: apply
       continue-on-error: true
       shell: sh
       working-directory: ${{ inputs.tf_path }}
-      run: terraform apply -auto-approve ${{ steps.input-vars.outputs.tf_command_line }}
+      run: terraform apply -auto-approve ${{ steps.input-vars.outputs.tf_args }}
+
+    # Ensure that the outcome was a failure
     - name: Check for Failure
       if: matrix.shells != 'true' && steps.apply.outcome != 'failure'
       shell: sh
