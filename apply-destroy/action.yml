@@ -22,7 +22,7 @@ runs:
       run: |
         # Parse each line into its own array element
         readarray -t tf_args <<<$(cat <<EOF
-        ${{ toJSON(inputs.tf_vars) }}
+        ${{ inputs.tf_vars }}
         EOF
         )
         tf_vars=""
@@ -32,7 +32,7 @@ runs:
                 if [ "$tf_vars" != "" ]; then
                     tf_vars="$tf_vars "
                 fi
-                tf_vars="${tf_vars}-var=\"$(echo "${tf_args[index]}" | xargs)\""
+                tf_vars="${tf_vars}-var=\"$(printf "%q" "$(echo "${tf_args[index]}" | xargs)")\""
             fi
         done
         echo "tf_vars=$tf_vars" >> $GITHUB_OUTPUT
