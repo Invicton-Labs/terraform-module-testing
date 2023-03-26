@@ -25,7 +25,7 @@ runs:
     - name: Get Images
       id: images
       shell: bash
-      run: echo images='["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "ubuntu:latest", "amazonlinux:1", "amazonlinux:2"]' >>$GITHUB_OUTPUT
+      run: echo images='["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "ubuntu:latest", "amazonlinux:1", "amazonlinux:2", "amazonlinux:2023"]' >>$GITHUB_OUTPUT
 
     # Get the list of Windows operating systems to test on
     - name: Get Windows Operating Systems

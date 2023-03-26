@@ -1,0 +1,33 @@
+name: 'Terraform Module Testing (Apply Failure)'
+description: 'Tests the Terraform module by asserting that an Apply fails with a non-zero exit code.'
+
+inputs:
+  tf_path:
+    description: "The path to the directory that contains the Terraform configuration."
+    required: true
+  tf_args:
+    description: "Arguments to provide to Terraform (e.g. -var=\"key1=value1\" -var=\"key2=value2\")."
+    required: false
+    default: ""
+
+runs:
+  using: 'composite'
+
+  steps:
+
+    # Apply the Terraform config
+    - name: Terraform Apply
+      if: matrix.shells != 'true'
+      id: apply
+      continue-on-error: true
+      shell: sh
+      working-directory: ${{ inputs.tf_path }}
+      run: terraform apply -auto-approve ${{ steps.input-vars.outputs.tf_args }}
+
+    # Ensure that the outcome was a failure
+    - name: Check for Failure
+      if: matrix.shells != 'true' && steps.apply.outcome != 'failure'
+      shell: sh
+      run: |
+        echo "Apply had a status other than the expected failure: ${{ steps.apply.outcome }}"
+        exit 1

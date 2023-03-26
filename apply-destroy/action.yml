@@ -1,0 +1,36 @@
+name: 'Terraform Module Testing (Apply & Destroy)'
+description: 'Tests the Terraform module with a standard apply and destroy.'
+
+inputs:
+  tf_path:
+    description: "The path to the directory that contains the Terraform configuration."
+    required: true
+  tf_args:
+    description: "Arguments to provide to Terraform for both apply and destroy (e.g. -var=\"key1=value1\" -var=\"key2=value2\")."
+    required: false
+    default: ""
+  tf_args_apply:
+    description: "Arguments to provide to Terraform for apply only (e.g. -var=\"key1=value1\" -var=\"key2=value2\")."
+    required: false
+    default: ""
+  tf_args_destroy:
+    description: "Arguments to provide to Terraform for destroy only (e.g. -var=\"key1=value1\" -var=\"key2=value2\")."
+    required: false
+    default: ""
+
+runs:
+  using: 'composite'
+
+  steps:
+
+    # Apply the Terraform config
+    - name: Terraform Apply
+      shell: sh
+      working-directory: ${{ inputs.tf_path }}
+      run: terraform apply -auto-approve ${{ steps.input-vars.outputs.tf_args }} ${{ steps.input-vars.outputs.tf_args_apply }}
+    
+    # Destroy the Terraform config
+    - name: Terraform Destroy
+      shell: sh
+      working-directory: ${{ inputs.tf_path }}
+      run: terraform destroy -auto-approve ${{ steps.input-vars.outputs.tf_args }} ${{ steps.input-vars.outputs.tf_args_destroy }}
