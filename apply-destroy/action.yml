@@ -15,10 +15,16 @@ runs:
 
   steps:
 
-    - name: Matrix Config
+    - name: Display Input Variables
       shell: sh
       run: |
-        echo "${{ toJSON(matrix) }}"
+        echo "${{ toJSON(inputs.tf_vars) }}"
+        
+    # Process the input variables that are given in the input JSON
+    - name: Prepare Input Variables
+      shell: sh
+      run: |
+        echo "tf_vars=$(echo "${{ inputs.tf_vars }}" | jq -r 'to_entries | map( "-var=\"\( .key + "=" + .value )\"" ) | join( " " )')" >> $GITHUB_OUTPUT
 
     # Do an apply for each shell we want to test, if it's a specific shell
     - name: Terraform Apply (bash)
