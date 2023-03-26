@@ -45,11 +45,11 @@ runs:
     # Apply the Terraform config
     - name: Terraform Apply
       shell: sh
-      working-directory: ${{ inputs.testing_path }}
+      working-directory: ${{ inputs.tf_path }}
       run: terraform apply -auto-approve ${{ steps.input-vars.outputs.tf_vars }}
     
     # Destroy the Terraform config
     - name: Terraform Destroy
       shell: sh
-      working-directory: ${{ inputs.testing_path }}
+      working-directory: ${{ inputs.tf_path }}
       run: terraform destroy -auto-approve ${{ steps.input-vars.outputs.tf_vars }}
