@@ -5,6 +5,10 @@ inputs:
   testing_path:
     description: "The path to the directory that contains the Terraform testing configuration."
     required: true
+  tf_vars:
+    description: "A JSON-encoded map of key/value pairs."
+    required: false
+    default: "{}"
 
 runs:
   using: 'composite'

@@ -11,40 +11,6 @@ runs:
 
   steps:
 
-    - name: Matrix Config
-      shell: sh
-      run: |
-        echo "${{ toJSON(matrix) }}"
-
-    # Do an apply for each shell we want to test, if it's a specific shell
-    - name: Terraform Apply (bash)
-      if: matrix.shells == 'true'
-      id: apply-bash
-      continue-on-error: true
-      shell: sh
-      working-directory: ${{ inputs.testing_path }}
-      run: terraform apply -auto-approve -var "unix_interpreter=/bin/bash"
-    - name: Check for Failure
-      if: matrix.shells == 'true' && steps.apply-bash.outcome != 'failure'
-      shell: sh
-      run: |
-        echo "Apply had a status other than the expected failure: ${{ steps.apply-bash.outcome }}"
-        exit 1
-
-    - name: Terraform Apply (dash)
-      if: matrix.shells == 'true'
-      id: apply-dash
-      continue-on-error: true
-      shell: sh
-      working-directory: ${{ inputs.testing_path }}
-      run: terraform apply -auto-approve -var "unix_interpreter=/bin/dash"
-    - name: Check for Failure
-      if: matrix.shells == 'true' && steps.apply-dash.outcome != 'failure'
-      shell: sh
-      run: |
-        echo "Apply had a status other than the expected failure: ${{ steps.apply-dash.outcome }}"
-        exit 1
-
     # Apply the Terraform config without specifying a shell
     - name: Terraform Apply
       if: matrix.shells != 'true'
