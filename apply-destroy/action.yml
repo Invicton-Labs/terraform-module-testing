@@ -2,11 +2,11 @@ name: 'Terraform Module Testing (Apply & Destroy)'
 description: 'Tests the Terraform module with a standard apply and destroy.'
 
 inputs:
-  testing_path:
-    description: "The path to the directory that contains the Terraform testing configuration."
+  tf_path:
+    description: "The path to the directory that contains the Terraform configuration."
     required: true
   tf_vars:
-    description: "A JSON-encoded map of key/value pairs."
+    description: "A list (newline-deliniated string) of key-value pairs (e.g. key1=value1)."
     required: false
     default: ""
 
@@ -22,7 +22,7 @@ runs:
       run: |
         # Parse each line into its own array element
         readarray -t tf_args <<<$(cat <<EOF
-        ${{inputs.tf_vars}}
+        ${{ toJSON(inputs.tf_vars) }}
         EOF
         )
         tf_vars=""
@@ -42,37 +42,14 @@ runs:
       run: |
         echo "${{ steps.input-vars.outputs.tf_vars }}"
 
-    # Do an apply for each shell we want to test, if it's a specific shell
-    - name: Terraform Apply (bash)
-      if: matrix.shells == 'true'
-      shell: sh
-      working-directory: ${{ inputs.testing_path }}
-      run: terraform apply -auto-approve -var "unix_interpreter=/bin/bash"
-    - name: Terraform Destroy (bash)
-      if: matrix.shells == 'true'
-      shell: sh
-      working-directory: ${{ inputs.testing_path }}
-      run: terraform destroy -auto-approve -var "unix_interpreter=/bin/bash"
-
-    - name: Terraform Apply (dash)
-      if: matrix.shells == 'true'
-      shell: sh
-      working-directory: ${{ inputs.testing_path }}
-      run: terraform apply -auto-approve -var "unix_interpreter=/bin/dash"
-    - name: Terraform Destroy (dash)
-      if: matrix.shells == 'true'
-      shell: sh
-      working-directory: ${{ inputs.testing_path }}
-      run: terraform destroy -auto-approve -var "unix_interpreter=/bin/dash"
-
-    # Apply the Terraform config without specifying a shell
+    # Apply the Terraform config
     - name: Terraform Apply
-      if: matrix.shells != 'true'
       shell: sh
       working-directory: ${{ inputs.testing_path }}
-      run: terraform apply -auto-approve
+      run: terraform apply -auto-approve ${{ steps.input-vars.outputs.tf_vars }}
+    
+    # Destroy the Terraform config
     - name: Terraform Destroy
-      if: matrix.shells != 'true'
       shell: sh
       working-directory: ${{ inputs.testing_path }}
-      run: terraform destroy -auto-approve
+      run: terraform destroy -auto-approve ${{ steps.input-vars.outputs.tf_vars }}
