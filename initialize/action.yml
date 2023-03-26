@@ -2,8 +2,8 @@ name: 'Terraform Module Initialization'
 description: 'Tests the Terraform module.'
 
 inputs:
-  testing_path:
-    description: "The path to the directory that contains the Terraform testing configuration."
+  tf_path:
+    description: "The path to the directory that contains the Terraform configuration."
     required: true
 
 runs:
@@ -86,5 +86,5 @@ runs:
     # Initialize the workspace
     - name: Terraform Init
       shell: sh
-      working-directory: ${{ inputs.testing_path }}
+      working-directory: ${{ inputs.tf_path }}
       run: terraform init
