@@ -2,8 +2,8 @@ name: 'Terraform Module Testing (Apply Failure)'
 description: 'Tests the Terraform module by asserting that an Apply fails with a non-zero exit code.'
 
 inputs:
-  testing_path:
-    description: "The path to the directory that contains the Terraform testing configuration."
+  tf_path:
+    description: "The path to the directory that contains the Terraform configuration."
     required: true
 
 runs:
@@ -17,7 +17,7 @@ runs:
       id: apply
       continue-on-error: true
       shell: sh
-      working-directory: ${{ inputs.testing_path }}
+      working-directory: ${{ inputs.tf_path }}
       run: terraform apply -auto-approve
     - name: Check for Failure
       if: matrix.shells != 'true' && steps.apply.outcome != 'failure'

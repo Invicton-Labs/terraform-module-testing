@@ -32,7 +32,7 @@ runs:
             if [ "$tf_vars" != "" ]; then
                 tf_vars="$tf_vars "
             fi
-            tf_vars="${tf_vars}-var=\"$(printf "%q" "$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' <<<${tf_args[index]})")\""
+            tf_vars="${tf_vars}-var=\"$(printf "%b" "$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' <<<${tf_args[index]})")\""
           fi
         done
         echo "tf_vars=$tf_vars" >> $GITHUB_OUTPUT
