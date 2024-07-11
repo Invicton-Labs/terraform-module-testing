@@ -28,22 +28,20 @@ runs:
           sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
         fi
 
-        packages_needed="unzip nodejs tar"
-
-        if [ -x "$(command -v apk)" ]; then
-          apk add --no-cache $packages_needed
-        elif [ -x "$(command -v apt-get)" ]; then
-          apt-get update
-          apt-get install -y $packages_needed
-        elif [ -x "$(command -v dnf)" ]; then
-          dnf install -y $packages_needed
-        elif [ -x "$(command -v yum)" ]; then
-          yum -y update
-          yum install -y $packages_needed
-        else
-          echo "No package manager found">&2
-          exit 1
-        fi
+        # if [ -x "$(command -v apk)" ]; then
+        #   apk add --no-cache $packages_needed
+        # elif [ -x "$(command -v apt-get)" ]; then
+        #   apt-get update
+        #   apt-get install -y unzip
+        # elif [ -x "$(command -v dnf)" ]; then
+        #   dnf install -y $packages_needed
+        # elif [ -x "$(command -v yum)" ]; then
+        #   yum -y update
+        #   yum install -y $packages_needed
+        # else
+        #   echo "No package manager found">&2
+        #   exit 1
+        # fi
 
     # Install Terraform
     - name: Install Terraform
