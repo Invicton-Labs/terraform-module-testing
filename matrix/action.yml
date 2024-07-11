@@ -41,7 +41,7 @@ runs:
         for image in "${additional_images[@]}"; do
             images=$(echo "$images" | jq -r ". + [\"$image\"]")
         done
-        images=$(echo "$images" | jq -r ". | unique")
+        images=$(echo "$images" | jq -r --compact-output ". | unique")
         echo "Images: $images"
         echo images="$images" >>$GITHUB_OUTPUT
 
@@ -55,7 +55,7 @@ runs:
         for runner in "${additional_runners[@]}"; do
             names=$(echo "$names" | jq -r ". + [\"$runner\"]")
         done
-        names=$(echo "$names" | jq -r ". | unique")
+        names=$(echo "$names" | jq -r --compact-output ". | unique")
         echo names="$names" >>$GITHUB_OUTPUT
 
     # Get the full list of Terraform versions.
