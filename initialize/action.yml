@@ -75,7 +75,7 @@ runs:
     # Installation for when we're not running in a container
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v2
-      #if: matrix.container.image == ''
+      if: matrix.container.image == ''
       with:
         terraform_version: ${{ matrix.terraform_version }}
 
