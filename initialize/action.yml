@@ -34,7 +34,7 @@ runs:
           apt-get update
           apt-get install -y nodejs unzip tar gzip
         elif [ -x "$(command -v dnf)" ]; then
-          dnf install -y nodejs:20 unzip tar gzip
+          dnf install -y nodejs:20/common unzip tar gzip
         elif [ -x "$(command -v yum)" ]; then
           yum -y update
           yum install -y nodejs unzip tar gzip
