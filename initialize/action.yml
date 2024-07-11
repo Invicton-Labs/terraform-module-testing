@@ -16,29 +16,28 @@ runs:
       run: |
         echo "${{ toJSON(matrix) }}"
 
+    # If we're running in a container, we have to install some additional
+    # packages in order to install Terraform.
     - name: Install Packages
       if: matrix.container.image != ''
       shell: sh
       run: |
+        # CentOS needs a mirror added
         if test -f "/etc/centos-release"; then
           sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
           sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
         fi
 
-        if [ -x "$(command -v apk)" ];
-        then
-          apk add --no-cache git unzip nodejs
-        elif [ -x "$(command -v apt-get)" ];
-        then
+        if [ -x "$(command -v apk)" ]; then
+          apk add --no-cache unzip nodejs
+        elif [ -x "$(command -v apt-get)" ]; then
           apt-get update
-          apt-get install -y curl gnupg lsb-release software-properties-common git unzip nodejs
-        elif [ -x "$(command -v dnf)" ];
-        then
-          dnf install -y dnf-plugins-core git unzip nodejs 
-        elif [ -x "$(command -v yum)" ];
-        then
+          apt-get install -y unzip nodejs
+        elif [ -x "$(command -v dnf)" ]; then
+          dnf install -y unzip nodejs 
+        elif [ -x "$(command -v yum)" ]; then
           yum -y update
-          yum install -y yum-utils git unzip nodejs 
+          yum install -y unzip nodejs 
         else
           echo "FAILED TO INSTALL PACKAGE: Package manager not found. You must manually install: "${packagesNeeded[@]}"">&2;
         fi
