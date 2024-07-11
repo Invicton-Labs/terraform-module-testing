@@ -42,7 +42,8 @@ runs:
             images=$(echo "$images" | jq -r ". + [\"$image\"]")
         done
         images=$(echo "$images" | jq -r ". | unique")
-        echo images="$(echo "$images" | jq -r ". | unique")" >>$GITHUB_OUTPUT
+        echo "Images: $images"
+        #echo images="$(echo "$images" | jq -r ". | unique")" >>$GITHUB_OUTPUT
 
     # Get the list of operating systems to test on
     - name: Get Operating Systems
