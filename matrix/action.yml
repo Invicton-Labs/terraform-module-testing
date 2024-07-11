@@ -43,7 +43,7 @@ runs:
         done
         images=$(echo "$images" | jq -r ". | unique")
         echo "Images: $images"
-        #echo images="$(echo "$images" | jq -r ". | unique")" >>$GITHUB_OUTPUT
+        #echo images="$images" >>$GITHUB_OUTPUT
 
     # Get the list of operating systems to test on
     - name: Get Operating Systems
@@ -55,7 +55,8 @@ runs:
         for runner in "${additional_runners[@]}"; do
             names=$(echo "$names" | jq -r ". + [\"$runner\"]")
         done
-        echo names="$(echo "$names" | jq -r ". | unique")" >>$GITHUB_OUTPUT
+        names=$(echo "$names" | jq -r ". | unique")
+        echo names="$names" >>$GITHUB_OUTPUT
 
     # Get the full list of Terraform versions.
     # For each major/minor version, only get the first release (no subsequent patch versions)
