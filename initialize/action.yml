@@ -26,6 +26,7 @@ runs:
         if test -f "/etc/centos-release"; then
           sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
           sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+          curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -
         fi
 
         if [ -x "$(command -v apk)" ]; then
@@ -33,14 +34,11 @@ runs:
         elif [ -x "$(command -v apt-get)" ]; then
           apt-get update
           apt-get install -y nodejs unzip tar gzip
-        elif [ -x "$(command -v dnf)" ]; then
-          dnf module -y reset nodejs
-          dnf module -y enable nodejs:20
-          dnf module install -y nodejs:20/common
-          dnf install -y unzip tar gzip
         elif [ -x "$(command -v yum)" ]; then
           yum -y update
           yum install -y nodejs unzip tar gzip
+        elif [ -x "$(command -v dnf)" ]; then
+          dnf install -y nodejs unzip tar gzip
         else
           echo "No package manager found">&2
           exit 1
