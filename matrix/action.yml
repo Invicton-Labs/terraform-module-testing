@@ -90,8 +90,11 @@ runs:
             minor=$(echo $version | cut -d. -f2)
             patch=$(echo $version | cut -d. -f3)
 
+            echo "Checking $version"
+
             # If the major/minor combination doesn't exist in the associative array, consider this version
             if ! [ ${found_major_minor["$major.$minor"]+_} ]; then
+              echo "Major/minor not yet found!"
                 # Ensure it's at least as recent as our lowest version
                 if [ $major -gt $minimum_major ] || ( [ $major -eq $minimum_major ] && [ $minor -gt $minimum_minor ] ) || ( [ $major -eq $minimum_major ] && [ $minor -eq $minimum_minor ] && [ $patch -ge $minimum_patch ] ); then
                     # Ensure the version we're considering isn't explicitly excluded
@@ -120,7 +123,6 @@ runs:
         set -eu -o pipefail
 
         runners='${{ steps.runners.outputs.names }}'
-        echo "Runners: $runners"
         images='${{ steps.images.outputs.images }}'
         tf_versions='${{ steps.terraform.outputs.versions }}'
 
