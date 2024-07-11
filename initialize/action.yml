@@ -77,7 +77,7 @@ runs:
       uses: hashicorp/setup-terraform@v2
       if: matrix.container.image == ''
       with:
-        terraform_version: ${{ inputs.terraform_version }}
+        terraform_version: ${{ matrix.terraform_version }}
 
     # Checkout the repository
     - name: Checkout
