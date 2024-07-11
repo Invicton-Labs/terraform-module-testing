@@ -1,5 +1,5 @@
 name: 'Terraform Module Testing Matrix'
-description: 'Generates a Terraform module testing matrix for use with GitHub Actions.'
+description: 'Generates a Terraform module testing matrix for use with GitHub Actions. By default, it tests on the latest versions of Alpine, Redhat, Fedora, CentOS, Ubuntu, and Amazon Linux.'
 
 inputs:
   minimum_tf_version:
@@ -8,6 +8,16 @@ inputs:
 
   excluded_tf_versions:
     description: "A comma-separated list of Terraform versions to exclude for testing."
+    required: false
+    default: ""
+
+  additional_runners:
+    description: "A comma-separated list of additional GitHub runner types (e.g. specific operating systems) to test for. See https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories"
+    required: false
+    default: ""
+
+  additional_images:
+    description: "A comma-separated list of additional Docker images to test on. This is for Linux operating systems that GitHub does not offer as native runners."
     required: false
     default: ""
 
@@ -25,19 +35,26 @@ runs:
     - name: Get Images
       id: images
       shell: bash
-      run: echo images='["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "ubuntu:latest", "amazonlinux:1", "amazonlinux:2", "amazonlinux:2023"]' >>$GITHUB_OUTPUT
+      run: |
+        images='["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "ubuntu:latest", "amazonlinux:latest"]'
+        IFS=',' read -r -a additional_images <<< $(echo "${{ inputs.additional_images }}" | sed 's/[[:blank:]]//g')
+        for image in "${additional_images[@]}"; do
+            images=$(echo "$images" | jq -r ". + [\"$image\"]")
+        done
+        images=$(echo "$images" | jq -r ". | unique")
+        echo images="$(echo "$images" | jq -r ". | unique")" >>$GITHUB_OUTPUT
 
-    # Get the list of Windows operating systems to test on
-    - name: Get Windows Operating Systems
-      id: windows
+    # Get the list of operating systems to test on
+    - name: Get Operating Systems
+      id: runners
       shell: bash
-      run: echo names='["windows-2022", "windows-2019"]' >>$GITHUB_OUTPUT
-
-    # Get the list of MacOS operating systems to test on
-    - name: Get MacOS Operating Systems
-      id: macos
-      shell: bash
-      run: echo names='["macos-12", "macos-11", "macos-10.15"]' >>$GITHUB_OUTPUT
+      run: |
+        names='["windows-latest", "macos-latest"]'
+        IFS=',' read -r -a additional_runners <<< $(echo "${{ inputs.additional_runners }}" | sed 's/[[:blank:]]//g')
+        for runner in "${additional_runners[@]}"; do
+            names=$(echo "$names" | jq -r ". + [\"$runner\"]")
+        done
+        echo names="$(echo "$names" | jq -r ". | unique")" >>$GITHUB_OUTPUT
 
     # Get the full list of Terraform versions.
     # For each major/minor version, only get the first release (no subsequent patch versions)
@@ -101,8 +118,7 @@ runs:
       run: |
         set -eu -o pipefail
 
-        windows_versions='${{ steps.windows.outputs.names }}'
-        macos_versions='${{ steps.macos.outputs.names }}'
+        runners='${{ steps.runners.outputs.names }}'
         images='${{ steps.images.outputs.images }}'
         tf_versions='${{ steps.terraform.outputs.versions }}'
 
@@ -126,12 +142,7 @@ runs:
         done
 
         # Add the non-Linux configurations
-        for os in $(echo "${windows_versions}" | jq -r '.[]'); do
-          for version in $(echo "${tf_versions}" | jq -r '.[]'); do
-            matrix+=("{\"container\": \"\", \"runs-on\": \"$os\", \"terraform_version\": \"$version\", \"shells\": \"false\"}")
-          done
-        done
-        for os in $(echo "${macos_versions}" | jq -r '.[]'); do
+        for os in $(echo "${runners}" | jq -r '.[]'); do
           for version in $(echo "${tf_versions}" | jq -r '.[]'); do
             matrix+=("{\"container\": \"\", \"runs-on\": \"$os\", \"terraform_version\": \"$version\", \"shells\": \"false\"}")
           done
