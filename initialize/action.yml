@@ -45,67 +45,9 @@ runs:
           exit 1
         fi
 
-    # - name: Install Terraform (Alpine)
-    #   if: startsWith(matrix.container.image, 'alpine:')
-    #   shell: sh
-    #   run: |
-    #     apk add --no-cache git unzip nodejs
-    #     # wget https://releases.hashicorp.com/terraform/${{ matrix.terraform_version }}/terraform_${{ matrix.terraform_version }}_linux_amd64.zip
-    #     # unzip terraform_${{ matrix.terraform_version }}_linux_amd64.zip
-    #     # mv terraform /usr/bin/terraform
-        
-    # - name: Install Terraform (Redhat)
-    #   if: startsWith(matrix.container.image, 'redhat/')
-    #   shell: sh
-    #   run: |
-    #     yum -y update
-    #     yum install -y yum-utils git unzip nodejs 
-    #     # yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-    #     # yum -y install terraform-${{ matrix.terraform_version }}
-
-    # - name: Install Terraform (CentOS)
-    #   if: startsWith(matrix.container.image, 'centos:')
-    #   shell: sh
-    #   run: |
-    #     sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
-    #     sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
-    #     yum -y update
-    #     yum install -y yum-utils git unzip nodejs
-    #     # yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-    #     # yum -y install terraform-${{ matrix.terraform_version }}
-
-    # - name: Install Terraform (Amazon Linux)
-    #   if: startsWith(matrix.container.image, 'amazonlinux:')
-    #   shell: sh
-    #   run: |
-    #     yum -y update
-    #     yum install -y yum-utils git unzip nodejs
-    #     # yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
-    #     # yum -y install terraform-${{ matrix.terraform_version }}
-
-    # - name: Install Terraform (Fedora)
-    #   if: startsWith(matrix.container.image, 'fedora:')
-    #   shell: sh
-    #   run: |
-    #     dnf install -y dnf-plugins-core git unzip nodejs
-    #     # dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
-    #     # dnf -y install terraform-${{ matrix.terraform_version }}
-
-    # - name: Install Terraform (Ubuntu)
-    #   if: startsWith(matrix.container.image, 'ubuntu:')
-    #   shell: sh
-    #   run: |
-    #     apt-get update
-    #     apt-get install -y curl gnupg lsb-release software-properties-common git unzip nodejs
-    #     # curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
-    #     # apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-    #     # apt-get update
-    #     # apt-get install -y terraform=${{ matrix.terraform_version }}
-
-    # Installation for when we're not running in a container
+    # Install Terraform
     - name: Install Terraform
-      uses: hashicorp/setup-terraform@v2
-      # if: matrix.container.image == '' || startsWith(matrix.container.image, 'ubuntu:')
+      uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: ${{ matrix.terraform_version }}
 
