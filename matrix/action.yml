@@ -1,5 +1,5 @@
 name: 'Terraform Module Testing Matrix'
-description: 'Generates a Terraform module testing matrix for use with GitHub Actions. By default, it tests on the latest versions of Alpine, Redhat, Fedora, CentOS, Ubuntu, and Amazon Linux.'
+description: 'Generates a Terraform module testing matrix for use with GitHub Actions. By default, it tests on the latest versions of Alpine, Redhat, Fedora, CentOS, Ubuntu, and Amazon Linux, and it tests the most recent patch version of each major/minor version of Terraform.'
 
 inputs:
   minimum_tf_version:
@@ -85,16 +85,17 @@ runs:
         selected_versions=()
         declare -A found_major_minor
 
+        # Loop through a descending-sorted list of all version numbers. For the first seen major/minor version
+        # that hasn't been seen yet, if it's above the minimum version then track it in the array. This
+        # uses the most recent patch version of each major/minor version combo. We can't test each patch
+        # version, it would just be way too many jobs.
         while read -r version ; do
             major=$(echo $version | cut -d. -f1)
             minor=$(echo $version | cut -d. -f2)
             patch=$(echo $version | cut -d. -f3)
 
-            echo "Checking $version"
-
             # If the major/minor combination doesn't exist in the associative array, consider this version
             if ! [ ${found_major_minor["$major.$minor"]+_} ]; then
-              echo "Major/minor not yet found!"
                 # Ensure it's at least as recent as our lowest version
                 if [ $major -gt $minimum_major ] || ( [ $major -eq $minimum_major ] && [ $minor -gt $minimum_minor ] ) || ( [ $major -eq $minimum_major ] && [ $minor -eq $minimum_minor ] && [ $patch -ge $minimum_patch ] ); then
                     # Ensure the version we're considering isn't explicitly excluded
