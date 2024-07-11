@@ -29,15 +29,15 @@ runs:
         fi
 
         if [ -x "$(command -v apk)" ]; then
-          apk add --no-cache nodejs unzip
+          apk add --no-cache nodejs unzip tar gzip
         elif [ -x "$(command -v apt-get)" ]; then
           apt-get update
-          apt-get install -y nodejs unzip
+          apt-get install -y nodejs unzip tar gzip
         elif [ -x "$(command -v dnf)" ]; then
-          dnf install -y nodejs unzip
+          dnf install -y nodejs unzip tar gzip
         elif [ -x "$(command -v yum)" ]; then
           yum -y update
-          yum install -y nodejs unzip
+          yum install -y nodejs unzip tar gzip
         else
           echo "No package manager found">&2
           exit 1
