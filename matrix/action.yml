@@ -42,7 +42,6 @@ runs:
             images=$(echo "$images" | jq -r ". + [\"$image\"]")
         done
         images=$(echo "$images" | jq -r --compact-output ". | unique")
-        echo "Images: $images"
         echo images="$images" >>$GITHUB_OUTPUT
 
     # Get the list of operating systems to test on
@@ -121,6 +120,7 @@ runs:
         set -eu -o pipefail
 
         runners='${{ steps.runners.outputs.names }}'
+        echo "Runners: $runners"
         images='${{ steps.images.outputs.images }}'
         tf_versions='${{ steps.terraform.outputs.versions }}'
 
