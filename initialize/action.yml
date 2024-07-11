@@ -68,15 +68,15 @@ runs:
       run: |
         apt-get update
         apt-get install -y curl gnupg lsb-release software-properties-common git
-        curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
-        apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-        apt-get update
-        apt-get install -y terraform=${{ matrix.terraform_version }}
+        # curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
+        # apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+        # apt-get update
+        # apt-get install -y terraform=${{ matrix.terraform_version }}
 
     # Installation for when we're not running in a container
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v2
-      if: matrix.container.image == ''
+      if: matrix.container.image == '' || startsWith(matrix.container.image, 'ubuntu:')
       with:
         terraform_version: ${{ matrix.terraform_version }}
 
