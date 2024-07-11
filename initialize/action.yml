@@ -17,7 +17,7 @@ runs:
         echo "${{ toJSON(matrix) }}"
 
     - name: Install Packages
-      if: matrix.container.image != ""
+      if: matrix.container.image != ''
       shell: sh
       run: |
         if test -f "/etc/centos-release"; then
