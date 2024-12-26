@@ -9,6 +9,8 @@ inputs:
     description: "Arguments to provide to Terraform (e.g. -var=\"key1=value1\" -var=\"key2=value2\")."
     required: false
     default: ""
+  stderr_contains:
+    description: "A string value to assert that is contained in the stderr output"
 
 runs:
   using: 'composite'
@@ -17,7 +19,6 @@ runs:
 
     # Apply the Terraform config
     - name: Terraform Apply
-      if: matrix.shells != 'true'
       id: apply
       continue-on-error: true
       shell: sh
@@ -26,8 +27,15 @@ runs:
 
     # Ensure that the outcome was a failure
     - name: Check for Failure
-      if: matrix.shells != 'true' && steps.apply.outcome != 'failure'
+      if: steps.apply.outcome != 'failure'
       shell: sh
       run: |
         echo "Apply had a status other than the expected failure: ${{ steps.apply.outcome }}"
+        exit 1
+
+    - name: Check for stderr string
+      if: inputs.stderr_contains != '' && !contains(steps.apply.outputs.stderr, inputs.stderr_contains)
+      shell: sh
+      run: |
+        echo "stderr does not contain the expected string (${{ inputs.stderr_contains }})"
         exit 1
