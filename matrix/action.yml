@@ -136,20 +136,20 @@ runs:
             minor=$(echo $version | cut -d. -f2)
             # Exclude Amazon Linux 1/2 with any version less than 14
             if ! ( [ $major -eq 0 ] && [ $minor -lt 14 ] && ( [ "$image" = "amazonlinux:1" ] || [ "$image" = "amazonlinux:2" ] )) then
-              matrix+=("{\"container\": {\"image\": \"$image\"}, \"runs-on\": \"ubuntu-latest\", \"terraform_version\": \"$version\", \"shells\": \"false\"}")
+              matrix+=("{\"container\": {\"image\": \"$image\"}, \"runs-on\": \"ubuntu-latest\", \"terraform_version\": \"$version\"}")
             fi
           done
         done
 
         # Add the Linux shell configurations
         for version in $(echo "${tf_versions}" | jq -r '.[]'); do
-          matrix+=("{\"container\": \"\", \"runs-on\": \"ubuntu-latest\", \"terraform_version\": \"$version\", \"shells\": \"true\"}")
+          matrix+=("{\"container\": \"\", \"runs-on\": \"ubuntu-latest\", \"terraform_version\": \"$version\"}")
         done
 
         # Add the non-Linux configurations
         for os in $(echo "${runners}" | jq -r '.[]'); do
           for version in $(echo "${tf_versions}" | jq -r '.[]'); do
-            matrix+=("{\"container\": \"\", \"runs-on\": \"$os\", \"terraform_version\": \"$version\", \"shells\": \"false\"}")
+            matrix+=("{\"container\": \"\", \"runs-on\": \"$os\", \"terraform_version\": \"$version\"}")
           done
         done
 
