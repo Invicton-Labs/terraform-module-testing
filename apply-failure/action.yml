@@ -35,7 +35,8 @@ runs:
         exit 1
 
     - name: Check for stderr string
-      if: inputs.stderr_contains != ''
+      if: inputs.stderr_contains != '' && !contains(steps.apply.outputs.stderr, inputs.stderr_contains)
       shell: sh
       run: |
-        echo "${{ steps.apply.outputs.stderr }}"
+        echo "stderr does not contain the expected string (${{ inputs.stderr_contains }})"
+        exit 1
