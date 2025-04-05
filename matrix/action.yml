@@ -1,5 +1,5 @@
 name: 'Terraform Module Testing Matrix'
-description: 'Generates a Terraform module testing matrix for use with GitHub Actions. By default, it tests on the latest versions of Alpine, Redhat, Fedora, CentOS, Ubuntu, and Amazon Linux, and it tests the most recent patch version of each major/minor version of Terraform.'
+description: 'Generates a Terraform module testing matrix for use with GitHub Actions. By default, it tests on the latest versions of Alpine, Redhat, Fedora, Ubuntu, and Amazon Linux, and it tests the most recent patch version of each major/minor version of Terraform.'
 
 inputs:
   minimum_tf_version:
@@ -36,7 +36,7 @@ runs:
       id: images
       shell: bash
       run: |
-        images='["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "centos:latest", "amazonlinux:latest"]'
+        images='["alpine:latest", "redhat/ubi9:latest", "fedora:latest", "amazonlinux:latest"]'
         IFS=',' read -r -a additional_images <<< $(echo "${{ inputs.additional_images }}" | sed 's/[[:blank:]]//g')
         for image in "${additional_images[@]}"; do
             images=$(echo "$images" | jq -r ". + [\"$image\"]")
